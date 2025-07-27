@@ -1,155 +1,75 @@
 <script setup>
-import { computed, useTemplateRef } from 'vue'
-import { useFileUpload } from '@/composables/useFileUpload'
+import { computed, watch } from 'vue'
 
-const emit = defineEmits(['filesChange'])
+const model = defineModel({ required: true })
 
-const fileInput = useTemplateRef('file-input')
+// const MARKDOWN_EXTENSIONS = ['.md', '.markdown']
+// const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg']
+const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
-const {
-  files,
-  isDragOver,
-  markdownFiles,
-  imageFiles,
-  isValidFileCount,
-  totalSize,
-  isValidTotalSize,
-  addFiles,
-  removeFile,
-  clearFiles,
-  validateFiles,
-  getFileExtension,
-  formatFileSize,
-  setDragOver,
-} = useFileUpload()
+const markdownCount = computed(() => model.value.files.filter(file => file.type === 'text/markdown').length)
+const imageCount = computed(() => model.value.files.filter(file => file.type.startsWith('image/')).length)
+const totalSize = computed(() => model.value.files.reduce((sum, file) => sum + file.size, 0))
+const isValidTotalSize = computed(() => totalSize.value <= MAX_FILE_SIZE)
 
-const validationStatus = computed(() => validateFiles())
+const fileSizeFormatted = computed(() => {
+  const bytes = totalSize.value
+  if (bytes === 0)
+    return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
+})
 
-const dropZoneClasses = computed(() => [
-  'border-2 border-dashed rounded-lg p-8 cursor-pointer transition-all duration-200',
-])
-
-function openFileDialog() {
-  if (fileInput.value) {
-    fileInput.value.click()
+const validationErrors = computed(() => {
+  const errors = []
+  if (markdownCount.value > 1) {
+    errors.push('Only one markdown file is allowed.')
   }
-}
-
-function emitFilesChange() {
-  const validation = validateFiles()
-  emit('filesChange', {
-    files: files.value,
-    validation,
-    markdownFiles: markdownFiles.value,
-    imageFiles: imageFiles.value,
-  })
-}
-
-function onFileSelect(event) {
-  const selectedFiles = event.target.files
-  if (selectedFiles && selectedFiles.length > 0) {
-    addFiles(selectedFiles)
-    emitFilesChange()
+  if (markdownCount.value === 0 && model.value.files.length > 0) {
+    errors.push('At least one markdown file is required.')
   }
-  // Reset input value to allow selecting the same files again
-  if (fileInput.value) {
-    fileInput.value.value = ''
+  if (!isValidTotalSize.value) {
+    errors.push(`Total file size exceeds ${MAX_FILE_SIZE / (1024 * 1024)} MB.`)
   }
-}
+  return errors
+})
 
-function onDrop(event) {
-  setDragOver(false)
-  const droppedFiles = event.dataTransfer.files
-  if (droppedFiles && droppedFiles.length > 0) {
-    addFiles(droppedFiles)
-    emitFilesChange()
-  }
-}
-
-function onDragOver() {
-  setDragOver(true)
-}
-
-function onDragEnter() {
-  setDragOver(true)
-}
-
-function onDragLeave(event) {
-  // Only set drag over to false if leaving the drop zone entirely
-  if (!event.currentTarget.contains(event.relatedTarget)) {
-    setDragOver(false)
-  }
-}
-
-function onRemoveFile(fileId) {
-  removeFile(fileId)
-  emitFilesChange()
-}
+watch(
+  () => model.value.files,
+  () => {
+    model.value.isValid = model.value.files.length > 0 && validationErrors.value.length === 0
+  },
+  { immediate: true, deep: true },
+)
 
 function clearAllFiles() {
-  clearFiles()
-  emitFilesChange()
+  model.value.files = []
 }
-
-// Initial emit
-emitFilesChange()
 </script>
 
 <template>
   <div class="space-y-6">
     <!-- Drop Zone -->
-    <div
-      :class="dropZoneClasses"
-      @drop.prevent="onDrop"
-      @dragover.prevent="onDragOver"
-      @dragenter.prevent="onDragEnter"
-      @dragleave.prevent="onDragLeave"
-      @click="openFileDialog"
-    >
-      <input
-        ref="file-input"
-        type="file"
-        multiple
-        accept=".md,.markdown,.png,.jpg,.jpeg"
-        class="hidden"
-        @change="onFileSelect"
-      >
-
-      <div class="text-center">
-        <div class="mx-auto h-12 w-12 mb-4">
-          <svg class="h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-        </div>
-        <div class="text-lg font-medium mb-2">
-          {{ isDragOver ? 'Drop files here' : 'Upload your files' }}
-        </div>
-        <p class="text-sm mb-4">
-          Drag and drop your markdown and image files, or click to browse
-        </p>
-        <div class="flex justify-center space-x-2">
-          <UBadge color="secondary" variant="soft">
-            Markdown: .md, .markdown
-          </UBadge>
-          <UBadge color="primary" variant="soft">
-            Images: .png, .jpg, .jpeg
-          </UBadge>
-        </div>
-        <p class="text-xs mt-2">
-          Maximum total size: 50MB
-        </p>
-      </div>
-    </div>
+    <UFileUpload
+      v-model="model.files"
+      layout="list"
+      multiple
+      label="Drop your files here"
+      description="You can drop images and a markdown file here."
+      accept="image/jpeg,image/jpg,image/png,text/markdown"
+      class="w-full min-h-48"
+    />
 
     <!-- File Validation Status -->
-    <div v-if="files.length > 0" class="rounded-lg p-4">
+    <div v-if="model.files.length > 0" class="rounded-lg py-4">
       <div class="flex items-center justify-between mb-3">
         <h4 class="text-sm font-medium">
           Upload Status
         </h4>
         <UButton
           icon="i-lucide-trash-2"
-          :disabled="files.length === 0"
           label="Clear All"
           color="error"
           variant="soft"
@@ -157,28 +77,27 @@ emitFilesChange()
           @click="clearAllFiles"
         />
       </div>
-
       <div class="flex flex-wrap gap-2 mb-3">
         <UBadge
-          :color="validationStatus.hasMarkdown && validationStatus.markdownCount === 1 ? 'primary' : 'error'"
-          :variant="validationStatus.hasMarkdown && validationStatus.markdownCount === 1 ? 'soft' : 'solid'"
+          :color="markdownCount === 1 ? 'primary' : 'error'"
+          :variant="markdownCount === 1 ? 'soft' : 'solid'"
         >
-          Markdown: {{ validationStatus.markdownCount }}/1
+          Markdown: {{ markdownCount }}/1
         </UBadge>
         <UBadge color="secondary" variant="soft">
-          Images: {{ imageFiles.length }}
+          Images: {{ imageCount }}
         </UBadge>
         <UBadge
           :color="isValidTotalSize ? 'primary' : 'error'"
           :variant="isValidTotalSize ? 'soft' : 'solid'"
         >
-          Size: {{ formatFileSize(totalSize) }}/50MB
+          Size: {{ fileSizeFormatted }}/50MB
         </UBadge>
       </div>
 
-      <div v-if="validationStatus.errors.length > 0" class="space-y-1">
+      <div v-if="validationErrors.length > 0" class="space-y-1">
         <UAlert
-          v-for="error in validationStatus.errors"
+          v-for="error in validationErrors"
           :key="error"
           color="error"
           variant="soft"
@@ -187,67 +106,8 @@ emitFilesChange()
       </div>
     </div>
 
-    <!-- File List -->
-    <div v-if="files.length > 0" class="space-y-3">
-      <h4 class="text-sm font-medium">
-        Uploaded Files
-      </h4>
-
-      <div class="space-y-2">
-        <div
-          v-for="file in files"
-          :key="file.id"
-          class="flex items-center justify-between p-3 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
-        >
-          <div class="flex items-center space-x-3 flex-1 min-w-0">
-            <!-- File Type Icon -->
-            <div class="flex-shrink-0">
-              <UBadge
-                :color="file.type === 'markdown' ? 'secondary' : 'primary'"
-                variant="soft"
-                size="sm"
-              >
-                {{ file.type === 'markdown' ? 'MD' : 'IMG' }}
-              </UBadge>
-            </div>
-
-            <!-- File Info -->
-            <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium truncate">
-                {{ file.file.name }}
-              </p>
-              <div class="flex items-center space-x-2 text-xs">
-                <span>{{ formatFileSize(file.file.size) }}</span>
-                <span>{{ getFileExtension(file.file.name).toUpperCase() }}</span>
-              </div>
-            </div>
-
-            <!-- Image Preview -->
-            <div v-if="file.type === 'image' && file.preview" class="flex-shrink-0">
-              <img
-                :src="file.preview"
-                :alt="file.file.name"
-                class="h-10 w-10 object-cover rounded border border-gray-800"
-              >
-            </div>
-          </div>
-
-          <!-- Remove Button -->
-          <UButton
-            label="Remove"
-            icon="i-lucide-trash-2"
-            color="error"
-            variant="soft"
-            size="sm"
-            class="ml-3"
-            @click="onRemoveFile(file.id)"
-          />
-        </div>
-      </div>
-    </div>
-
     <!-- Drop Zone Instructions -->
-    <div v-if="files.length === 0" class="text-center text-sm">
+    <div v-if="model.files.length === 0" class="text-center text-sm">
       <p>No files uploaded yet. Start by adding exactly one markdown file.</p>
     </div>
   </div>

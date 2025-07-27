@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     upload_timeout: int = 300
     
     # PDF Generation Settings
+    default_template: str = "default"
     default_page_format: str = "A4"
     company_name: str = "Your Company Name"
     company_logo_url: str = "/templates/assets/logo.png"

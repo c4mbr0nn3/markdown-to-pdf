@@ -1,45 +1,50 @@
-[tool.poetry]
+[project]
 name = "markdown-pdf-api"
 version = "1.0.0"
 description = "A FastAPI-based web API that converts markdown documents with embedded images to professionally branded PDF files"
-authors = ["Your Name <your.email@example.com>"]
+authors = [
+    {name = "Your Name",email = "you@example.com"}
+]
+license = {text = "MIT"}
 readme = "README.md"
-packages = [{include = "app"}]
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "fastapi (>=0.116.1,<0.117.0)",
+    "uvicorn (>=0.35.0,<0.36.0)",
+    "python-multipart (>=0.0.20,<0.0.21)",
+    "markdown (>=3.8.2,<4.0.0)",
+    "weasyprint (>=66.0,<67.0)",
+    "pillow (>=11.3.0,<12.0.0)",
+    "python-magic (>=0.4.27,<0.5.0)",
+    "pydantic (>=2.11.7,<3.0.0)",
+    "pydantic-settings (>=2.10.1,<3.0.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)",
+    "loguru (>=0.7.3,<0.8.0)",
+    "jinja2 (>=3.1.6,<4.0.0)"
+]
 
-[tool.poetry.dependencies]
-python = "^3.11"
-fastapi = "^0.104.1"
-uvicorn = {extras = ["standard"], version = "^0.24.0"}
-python-multipart = "^0.0.6"
-markdown = "^3.5.1"
-weasyprint = "^61.0"
-Pillow = "^10.1.0"
-python-magic = "^0.4.27"
-pydantic = "^2.5.0"
-pydantic-settings = "^2.1.0"
-python-dotenv = "^1.0.0"
-loguru = "^0.7.2"
+[tool.poetry]
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.11.0"
-isort = "^5.12.0"
-flake8 = "^6.1.0"
-mypy = "^1.7.1"
+black = "^25.1.0"
+isort = "^6.0.1"
+flake8 = "^7.3.0"
+mypy = "^1.17.0"
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py313']
 
 [tool.isort]
 profile = "black"
 line_length = 88
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

@@ -3,12 +3,15 @@
 ## 1. Project Overview
 
 ### 1.1 Description
+
 A FastAPI-based web API that converts markdown documents with embedded images to professionally branded PDF files. The API accepts ZIP archives containing markdown files and associated images, processes them with company branding templates, and returns high-quality PDF documents with proper page break handling.
 
 ### 1.2 Use Case
+
 This API enables companies to convert project proposals, documentation, and reports written in markdown format into professional PDF documents suitable for client presentation. The solution supports a separate UI application that allows users to upload ZIP files and download the generated PDFs.
 
 ### 1.3 Key Requirements
+
 - **Web API**: RESTful API built with FastAPI
 - **Package Management**: Poetry for dependency management
 - **Input**: ZIP files containing markdown and images
@@ -21,12 +24,14 @@ This API enables companies to convert project proposals, documentation, and repo
 ## 2. Technical Stack
 
 ### 2.1 Core Technologies
+
 - **Framework**: FastAPI 0.104+
 - **Package Manager**: Poetry
 - **Server**: Uvicorn (ASGI)
 - **Python Version**: 3.11+
 
 ### 2.2 Dependencies
+
 ```toml
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -84,11 +89,13 @@ markdown-pdf-api/
 ## 4. API Endpoints Specification
 
 ### 4.1 Convert Markdown to PDF
+
 **Endpoint**: `POST /api/v1/convert`
 
 **Description**: Converts a ZIP file containing markdown and images to a branded PDF document.
 
 **Request**:
+
 - **Content-Type**: `multipart/form-data`
 - **Parameters**:
   - `file` (required): ZIP file containing markdown and images
@@ -96,6 +103,7 @@ markdown-pdf-api/
   - `include_toc` (optional): Include table of contents (default: true)
 
 **Response**:
+
 - **Success (200)**: PDF file as binary stream
 - **Headers**:
   - `Content-Type: application/pdf`
@@ -107,11 +115,13 @@ markdown-pdf-api/
   - `500`: Internal server error
 
 ### 4.2 Health Check
+
 **Endpoint**: `GET /health`
 
 **Description**: API health status check.
 
 **Response**:
+
 ```json
 {
     "status": "healthy",
@@ -121,11 +131,13 @@ markdown-pdf-api/
 ```
 
 ### 4.3 API Information
+
 **Endpoint**: `GET /api/v1/info`
 
 **Description**: API capabilities and configuration information.
 
 **Response**:
+
 ```json
 {
     "name": "Markdown to PDF Converter API",
@@ -137,11 +149,13 @@ markdown-pdf-api/
 ```
 
 ### 4.4 API Status
+
 **Endpoint**: `GET /api/v1/status`
 
 **Description**: API status and configuration information.
 
 **Response**:
+
 ```json
 {
     "status": "operational",
@@ -154,6 +168,7 @@ markdown-pdf-api/
 ## 5. Input Requirements
 
 ### 5.1 ZIP File Structure
+
 ```
 project_proposal.zip
 ├── main.md                 # Main markdown file (required)
@@ -164,12 +179,14 @@ project_proposal.zip
 ```
 
 ### 5.2 Supported File Types
+
 - **Markdown**: `.md`
 - **Images**: `.png`, `.jpg`, `.jpeg`
 - **Maximum file size**: 50MB
 - **Maximum extracted size**: 200MB
 
 ### 5.3 Markdown Requirements
+
 - Standard CommonMark syntax
 - GitHub Flavored Markdown extensions
 - Image references using relative paths
@@ -179,18 +196,21 @@ project_proposal.zip
 ## 6. PDF Generation Features
 
 ### 6.1 Company Branding
+
 - **Cover Page**: Always included with company logo and branding
 - **Headers/Footers**: always included with company name, page numbers
 - **Color Scheme**: Hardcoded brand colors
 - **Fonts**: Hardcoded company font
 
 ### 6.2 Page Break Control
+
 - **Automatic**: Intelligent page breaks between sections
 - **Manual**: Support for explicit page break markers
 - **Avoid Breaks**: Keep tables, code blocks, and images together
 - **CSS Control**: Custom CSS classes for precise control
 
 **Page Break Syntax**:
+
 ```markdown
 <!-- Page break using HTML comment -->
 <div class="page-break"></div>
@@ -202,6 +222,7 @@ Content that should not be split across pages
 ```
 
 ### 6.3 Advanced Features
+
 - **Table of Contents**: Auto-generated from markdown headers
 - **Bookmarks**: PDF navigation bookmarks
 - **Hyperlinks**: Clickable internal and external links
@@ -211,12 +232,15 @@ Content that should not be split across pages
 ## 7. Company Template
 
 ### 7.1 Template Structure
+
 The application uses a single hardcoded company template that includes:
+
 - **CSS Stylesheet**: Layout, fonts, colors, page formatting
 - **Cover Page Template**: HTML template for cover page generation
 - **Company Assets**: Logo and branding elements
 
 ### 7.2 Company Template CSS
+
 ```css
 /* Company branding colors */
 :root {
@@ -247,6 +271,7 @@ table, img, pre { page-break-inside: avoid; }
 ```
 
 ### 7.3 Cover Page Template
+
 ```html
 <div class="cover-page">
     <div class="company-logo">
@@ -259,6 +284,7 @@ table, img, pre { page-break-inside: avoid; }
 ## 8. Configuration Management
 
 ### 8.1 Environment Variables
+
 ```bash
 # API Configuration
 API_HOST=0.0.0.0
@@ -284,6 +310,7 @@ ALLOWED_ORIGINS=["http://localhost:3000", "https://yourdomain.com"]
 ```
 
 ### 8.2 Application Configuration
+
 ```python
 # app/config.py
 from pydantic_settings import BaseSettings
@@ -295,18 +322,18 @@ class Settings(BaseSettings):
     api_port: int = 8000
     api_env: str = "development"
     debug: bool = False
-    
+
     # File Upload Settings
     max_file_size: int = 50 * 1024 * 1024  # 50MB
     max_extracted_size: int = 200 * 1024 * 1024  # 200MB
     upload_timeout: int = 300
-    
+
     # PDF Generation Settings
     company_name: str = "Your Company Name"
-    
+
     # Security Settings
     allowed_origins: List[str] = ["*"]
-    
+
     class Config:
         env_file = ".env"
 ```
@@ -314,6 +341,7 @@ class Settings(BaseSettings):
 ## 9. Error Handling
 
 ### 9.1 Error Response Format
+
 ```json
 {
     "error": {
@@ -330,6 +358,7 @@ class Settings(BaseSettings):
 ```
 
 ### 9.2 Error Codes
+
 - `INVALID_FILE_FORMAT`: File is not a ZIP archive
 - `FILE_TOO_LARGE`: File exceeds size limit
 - `NO_MARKDOWN_FOUND`: No markdown files in ZIP
@@ -346,18 +375,21 @@ class Settings(BaseSettings):
 ## 10. Performance Requirements
 
 ### 11.1 Response Times
+
 - Small files (<1MB): < 5 seconds
 - Medium files (1-10MB): < 15 seconds
 - Large files (10-50MB): < 60 seconds
 - Health check: < 100ms
 
 ### 11.2 Throughput
+
 - Concurrent requests: 10+ simultaneous conversions
 - Memory usage: < 1GB per conversion
 - Disk usage: Temporary files cleaned automatically
 - CPU usage: Optimized for multi-core processing
 
 ### 11.3 Scalability
+
 - Horizontal scaling support
 - Stateless design
 - Docker containerization
@@ -366,10 +398,12 @@ class Settings(BaseSettings):
 ## 11. Security Requirements
 
 ### 11.1 Input Validation
+
 - File type verification (magic bytes)
 - File size limits enforcement
 
 ### 11.2 Security Headers
+
 - CORS configuration
 - Content Security Policy
 - X-Frame-Options
@@ -379,6 +413,7 @@ class Settings(BaseSettings):
 ## 12. Deployment Specifications
 
 ### 12.1 Docker Configuration
+
 ```dockerfile
 FROM python:3.11-slim
 
@@ -411,6 +446,7 @@ CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", 
 ```
 
 ### 12.2 Production Requirements
+
 - **Process Manager**: docker ce in debian server
 - **Health**: Health checks
 - **Logging**: Structured logging with Loguru
@@ -419,16 +455,19 @@ CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", 
 ## 13. Documentation Requirements
 
 ### 13.1 API Documentation
+
 - OpenAPI/Swagger specification
 - Interactive API documentation (FastAPI automatic docs)
 
 ### 13.2 Development Documentation
+
 - Setup and installation guide
 - Architecture documentation
 - Code style guide
 - Troubleshooting guide
 
 ### 13.3 User Documentation
+
 - API usage examples
 - Supported markdown syntax
 - Best practices for ZIP file structure
@@ -436,6 +475,7 @@ CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", 
 ## 14. Logging with Loguru
 
 ### 14.1 Logging Configuration
+
 ```python
 # app/config.py
 from loguru import logger
@@ -443,10 +483,10 @@ import sys
 
 def setup_logging(log_level: str = "INFO", environment: str = "development"):
     """Configure Loguru logging."""
-    
+
     # Remove default handler
     logger.remove()
-    
+
     # Console logging for development
     if environment == "development":
         logger.add(
@@ -455,7 +495,7 @@ def setup_logging(log_level: str = "INFO", environment: str = "development"):
             level=log_level,
             colorize=True
         )
-    
+
     # File logging for production with JSON format
     logger.add(
         "logs/app.log",
@@ -466,7 +506,7 @@ def setup_logging(log_level: str = "INFO", environment: str = "development"):
         compression="gz",
         serialize=True  # JSON format
     )
-    
+
     # Error-specific logging
     logger.add(
         "logs/errors.log",
@@ -480,23 +520,25 @@ def setup_logging(log_level: str = "INFO", environment: str = "development"):
 ```
 
 ### 14.2 Logging Usage Examples
+
 ```python
 from loguru import logger
 
 # Request logging
-logger.info("Processing PDF conversion request", 
+logger.info("Processing PDF conversion request",
            extra={"request_id": "req_123", "file_size": 1024})
 
 # Error logging with context
-logger.error("PDF generation failed", 
+logger.error("PDF generation failed",
             extra={"error": str(e), "request_id": "req_123", "file_name": "document.md"})
 
 # Performance logging
-logger.info("PDF conversion completed", 
+logger.info("PDF conversion completed",
            extra={"request_id": "req_123", "processing_time": 5.2, "output_size": 2048})
 ```
 
 ### 14.3 Log Structure
+
 ```json
 {
     "text": "Processing PDF conversion request",
@@ -524,6 +566,7 @@ logger.info("PDF conversion completed",
 ## 15. Implementation Notes
 
 ### 15.1 Development Workflow
+
 1. Set up Poetry environment
 2. Implement core services (ZIP processing, PDF generation)
 3. Create FastAPI application with endpoints
@@ -533,6 +576,7 @@ logger.info("PDF conversion completed",
 7. Configure deployment
 
 ### 15.2 Quality Assurance
+
 - Code formatting with Black
 - Import sorting with isort
 - Linting with flake8
@@ -540,6 +584,7 @@ logger.info("PDF conversion completed",
 - Security scanning with bandit
 
 ### 15.3 Maintenance Considerations
+
 - Regular dependency updates
 - Configuration management
 - Performance optimization

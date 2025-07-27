@@ -1,124 +1,120 @@
-<script>
-import { computed, ref } from 'vue'
+<script setup>
+import { computed, useTemplateRef } from 'vue'
 import { useFileUpload } from '@/composables/useFileUpload'
 
-export default {
-  name: 'FileUpload',
-  emits: ['filesChange'],
-  setup(props, { emit }) {
-    const fileInput = ref(null)
+const emit = defineEmits(['filesChange'])
 
-    const {
-      files,
-      isDragOver,
-      markdownFiles,
-      imageFiles,
-      isValidFileCount,
-      totalSize,
-      isValidTotalSize,
-      addFiles,
-      removeFile,
-      clearFiles,
-      validateFiles,
-      getFileExtension,
-      formatFileSize,
-      setDragOver,
-    } = useFileUpload()
+const fileInput = useTemplateRef('file-input')
 
-    const validationStatus = computed(() => validateFiles())
+const {
+  files,
+  isDragOver,
+  markdownFiles,
+  imageFiles,
+  isValidFileCount,
+  totalSize,
+  isValidTotalSize,
+  addFiles,
+  removeFile,
+  clearFiles,
+  validateFiles,
+  getFileExtension,
+  formatFileSize,
+  setDragOver,
+} = useFileUpload()
 
-    const dropZoneClasses = computed(() => [
-      'border-2 border-dashed rounded-lg p-8 cursor-pointer transition-all duration-200',
-    ])
+const validationStatus = computed(() => validateFiles())
 
-    const openFileDialog = () => {
-      if (fileInput.value) {
-        fileInput.value.click()
-      }
-    }
+const dropZoneClasses = computed(() => [
+  'border-2 border-dashed rounded-lg p-8 cursor-pointer transition-all duration-200',
+])
 
-    const emitFilesChange = () => {
-      const validation = validateFiles()
-      emit('filesChange', {
-        files: files.value,
-        validation,
-        markdownFiles: markdownFiles.value,
-        imageFiles: imageFiles.value,
-      })
-    }
+function openFileDialog() {
+  if (fileInput.value) {
+    fileInput.value.click()
+  }
+}
 
-    const onFileSelect = (event) => {
-      const selectedFiles = event.target.files
-      if (selectedFiles && selectedFiles.length > 0) {
-        addFiles(selectedFiles)
-        emitFilesChange()
-      }
-      // Reset input value to allow selecting the same files again
-      if (fileInput.value) {
-        fileInput.value.value = ''
-      }
-    }
+function emitFilesChange() {
+  const validation = validateFiles()
+  emit('filesChange', {
+    files: files.value,
+    validation,
+    markdownFiles: markdownFiles.value,
+    imageFiles: imageFiles.value,
+  })
+}
 
-    const onDrop = (event) => {
-      setDragOver(false)
-      const droppedFiles = event.dataTransfer.files
-      if (droppedFiles && droppedFiles.length > 0) {
-        addFiles(droppedFiles)
-        emitFilesChange()
-      }
-    }
-
-    const onDragOver = () => {
-      setDragOver(true)
-    }
-
-    const onDragEnter = () => {
-      setDragOver(true)
-    }
-
-    const onDragLeave = (event) => {
-      // Only set drag over to false if leaving the drop zone entirely
-      if (!event.currentTarget.contains(event.relatedTarget)) {
-        setDragOver(false)
-      }
-    }
-
-    const onRemoveFile = (fileId) => {
-      removeFile(fileId)
-      emitFilesChange()
-    }
-
-    const clearAllFiles = () => {
-      clearFiles()
-      emitFilesChange()
-    }
-
-    // Initial emit
+function onFileSelect(event) {
+  const selectedFiles = event.target.files
+  if (selectedFiles && selectedFiles.length > 0) {
+    addFiles(selectedFiles)
     emitFilesChange()
+  }
+  // Reset input value to allow selecting the same files again
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
 
-    return {
-      fileInput,
-      files,
-      isDragOver,
-      markdownFiles,
-      imageFiles,
-      isValidFileCount,
-      totalSize,
-      isValidTotalSize,
-      validationStatus,
-      dropZoneClasses,
-      openFileDialog,
-      onFileSelect,
-      onDrop,
-      onDragOver,
-      onDragEnter,
-      onDragLeave,
-      removeFile: onRemoveFile,
-      clearAllFiles,
-      getFileExtension,
-      formatFileSize,
-    }
-  },
+function onDrop(event) {
+  setDragOver(false)
+  const droppedFiles = event.dataTransfer.files
+  if (droppedFiles && droppedFiles.length > 0) {
+    addFiles(droppedFiles)
+    emitFilesChange()
+  }
+}
+
+function onDragOver() {
+  setDragOver(true)
+}
+
+function onDragEnter() {
+  setDragOver(true)
+}
+
+function onDragLeave(event) {
+  // Only set drag over to false if leaving the drop zone entirely
+  if (!event.currentTarget.contains(event.relatedTarget)) {
+    setDragOver(false)
+  }
+}
+
+function onRemoveFile(fileId) {
+  removeFile(fileId)
+  emitFilesChange()
+}
+
+function clearAllFiles() {
+  clearFiles()
+  emitFilesChange()
+}
+
+// Initial emit
+emitFilesChange()
+
+return {
+  fileInput,
+  files,
+  isDragOver,
+  markdownFiles,
+  imageFiles,
+  isValidFileCount,
+  totalSize,
+  isValidTotalSize,
+  validationStatus,
+  dropZoneClasses,
+  openFileDialog,
+  onFileSelect,
+  onDrop,
+  onDragOver,
+  onDragEnter,
+  onDragLeave,
+  removeFile: onRemoveFile,
+  clearAllFiles,
+  getFileExtension,
+  formatFileSize,
 }
 </script>
 
@@ -134,7 +130,7 @@ export default {
       @click="openFileDialog"
     >
       <input
-        ref="fileInput"
+        ref="file-input"
         type="file"
         multiple
         accept=".md,.markdown,.png,.jpg,.jpeg"

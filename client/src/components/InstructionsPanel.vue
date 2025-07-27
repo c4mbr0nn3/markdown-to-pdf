@@ -1,19 +1,9 @@
-<script>
+<script setup>
 import { ref } from 'vue'
 import instructionsData from '@/data/instructions.json'
 
-export default {
-  name: 'InstructionsPanel',
-  setup() {
-    const instructions = ref(instructionsData)
-    const isOpen = ref(false)
-
-    return {
-      instructions,
-      isOpen,
-    }
-  },
-}
+const instructions = ref(instructionsData)
+const isOpen = ref(false)
 </script>
 
 <template>

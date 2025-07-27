@@ -1,61 +1,49 @@
-<script>
+<script setup>
 import { computed, ref, watch } from 'vue'
 import { DEFAULT_VALUES } from '@/utils/constants'
 import { debounce, validateTitle } from '@/utils/validation'
 
-export default {
-  name: 'GenerationForm',
-  emits: ['formChange'],
-  setup(props, { emit }) {
-    const title = ref(DEFAULT_VALUES.TITLE)
-    const includeToc = ref(DEFAULT_VALUES.INCLUDE_TOC)
+const emit = defineEmits(['formChange'])
 
-    const titleValidation = computed(() => {
-      return validateTitle(title.value)
-    })
+const title = ref(DEFAULT_VALUES.TITLE)
+const includeToc = ref(DEFAULT_VALUES.INCLUDE_TOC)
 
-    const isFormValid = computed(() => {
-      return titleValidation.value.isValid && title.value.trim().length > 0
-    })
+const titleValidation = computed(() => {
+  return validateTitle(title.value)
+})
 
-    // Debounced title change handler
-    const debouncedEmit = debounce(() => {
-      emit('formChange', {
-        title: titleValidation.value.sanitized,
-        includeToc: includeToc.value,
-        isValid: isFormValid.value,
-      })
-    }, DEFAULT_VALUES.DEBOUNCE_DELAY)
+const isFormValid = computed(() => {
+  return titleValidation.value.isValid && title.value.trim().length > 0
+})
 
-    const onTitleChange = () => {
-      debouncedEmit()
-    }
+// Debounced title change handler
+const debouncedEmit = debounce(() => {
+  emit('formChange', {
+    title: titleValidation.value.sanitized,
+    includeToc: includeToc.value,
+    isValid: isFormValid.value,
+  })
+}, DEFAULT_VALUES.DEBOUNCE_DELAY)
 
-    // Watch for TOC changes
-    watch(includeToc, () => {
-      emit('formChange', {
-        title: titleValidation.value.sanitized,
-        includeToc: includeToc.value,
-        isValid: isFormValid.value,
-      })
-    })
-
-    // Initial emit
-    emit('formChange', {
-      title: titleValidation.value.sanitized,
-      includeToc: includeToc.value,
-      isValid: isFormValid.value,
-    })
-
-    return {
-      title,
-      includeToc,
-      titleValidation,
-      isFormValid,
-      onTitleChange,
-    }
-  },
+function onTitleChange() {
+  debouncedEmit()
 }
+
+// Watch for TOC changes
+watch(includeToc, () => {
+  emit('formChange', {
+    title: titleValidation.value.sanitized,
+    includeToc: includeToc.value,
+    isValid: isFormValid.value,
+  })
+})
+
+// Initial emit
+emit('formChange', {
+  title: titleValidation.value.sanitized,
+  includeToc: includeToc.value,
+  isValid: isFormValid.value,
+})
 </script>
 
 <template>

@@ -1,76 +1,66 @@
-<script>
+<script setup>
 import { computed } from 'vue'
 import { GENERATION_STATES } from '@/utils/constants'
 
-export default {
-  name: 'LoadingSpinner',
-  props: {
-    state: {
-      type: String,
-      default: GENERATION_STATES.VALIDATING,
-      validator: value => Object.values(GENERATION_STATES).includes(value),
-    },
-    showDetails: {
-      type: Boolean,
-      default: false,
-    },
-    showCancel: {
-      type: Boolean,
-      default: true,
-    },
+const props = defineProps({
+  state: {
+    type: String,
+    default: GENERATION_STATES.VALIDATING,
+    validator: value => Object.values(GENERATION_STATES).includes(value),
   },
-  emits: ['cancel'],
-  setup(props) {
-    const steps = [
-      {
-        id: GENERATION_STATES.VALIDATING,
-        title: 'Validating Files',
-        description: 'Checking file formats and content validity...',
-      },
-      {
-        id: GENERATION_STATES.CREATING_ZIP,
-        title: 'Creating Archive',
-        description: 'Packaging your files for upload...',
-      },
-      {
-        id: GENERATION_STATES.UPLOADING,
-        title: 'Uploading Files',
-        description: 'Sending your content to the server...',
-      },
-      {
-        id: GENERATION_STATES.GENERATING,
-        title: 'Generating PDF',
-        description: 'Converting markdown to PDF with styling...',
-      },
-      {
-        id: GENERATION_STATES.DOWNLOADING,
-        title: 'Preparing Download',
-        description: 'Finalizing your PDF document...',
-      },
-    ]
-
-    const currentStepIndex = computed(() => {
-      return steps.findIndex(step => step.id === props.state)
-    })
-
-    const currentStep = computed(() => {
-      const index = currentStepIndex.value
-      return index >= 0 ? steps[index] : steps[0]
-    })
-
-    const progressPercentage = computed(() => {
-      const index = currentStepIndex.value
-      return index >= 0 ? ((index + 1) / steps.length) * 100 : 0
-    })
-
-    return {
-      steps,
-      currentStepIndex,
-      currentStep,
-      progressPercentage,
-    }
+  showDetails: {
+    type: Boolean,
+    default: false,
   },
-}
+  showCancel: {
+    type: Boolean,
+    default: true,
+  },
+})
+
+const emit = defineEmits(['cancel'])
+
+const steps = [
+  {
+    id: GENERATION_STATES.VALIDATING,
+    title: 'Validating Files',
+    description: 'Checking file formats and content validity...',
+  },
+  {
+    id: GENERATION_STATES.CREATING_ZIP,
+    title: 'Creating Archive',
+    description: 'Packaging your files for upload...',
+  },
+  {
+    id: GENERATION_STATES.UPLOADING,
+    title: 'Uploading Files',
+    description: 'Sending your content to the server...',
+  },
+  {
+    id: GENERATION_STATES.GENERATING,
+    title: 'Generating PDF',
+    description: 'Converting markdown to PDF with styling...',
+  },
+  {
+    id: GENERATION_STATES.DOWNLOADING,
+    title: 'Preparing Download',
+    description: 'Finalizing your PDF document...',
+  },
+]
+
+const currentStepIndex = computed(() => {
+  return steps.findIndex(step => step.id === props.state)
+})
+
+const currentStep = computed(() => {
+  const index = currentStepIndex.value
+  return index >= 0 ? steps[index] : steps[0]
+})
+
+const progressPercentage = computed(() => {
+  const index = currentStepIndex.value
+  return index >= 0 ? ((index + 1) / steps.length) * 100 : 0
+})
 </script>
 
 <template>
@@ -139,7 +129,7 @@ export default {
         color="red"
         variant="outline"
         size="sm"
-        @click="$emit('cancel')"
+        @click="emit('cancel')"
       >
         Cancel
       </UButton>

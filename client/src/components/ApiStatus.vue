@@ -1,117 +1,102 @@
-<script>
+<script setup>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useApi } from '@/composables/useApi'
 import { DEFAULT_VALUES } from '@/utils/constants'
 
-export default {
-  name: 'ApiStatus',
-  setup() {
-    const api = useApi()
-    const health = ref(null)
-    const apiInfo = ref(null)
-    const systemStatus = ref(null)
-    const error = ref(null)
-    const isLoading = ref(true)
+const api = useApi()
+const health = ref(null)
+const apiInfo = ref(null)
+const systemStatus = ref(null)
+const error = ref(null)
+const isLoading = ref(true)
 
-    let refreshInterval = null
+let refreshInterval = null
 
-    const healthStatus = computed(() => {
-      if (isLoading.value) {
-        return {
-          color: 'gray',
-          variant: 'soft',
-          text: 'Checking...',
-        }
-      }
-
-      if (error.value) {
-        return {
-          color: 'red',
-          variant: 'solid',
-          text: 'Offline',
-        }
-      }
-
-      if (health.value?.status === 'healthy') {
-        return {
-          color: 'green',
-          variant: 'solid',
-          text: 'Online',
-        }
-      }
-
-      return {
-        color: 'yellow',
-        variant: 'solid',
-        text: 'Unknown',
-      }
-    })
-
-    const fetchApiData = async () => {
-      try {
-        error.value = null
-
-        // Fetch all API data in parallel
-        const [healthData, infoData, statusData] = await Promise.all([
-          api.health().catch(() => null),
-          api.info().catch(() => null),
-          api.status().catch(() => null),
-        ])
-
-        health.value = healthData
-        apiInfo.value = infoData
-        systemStatus.value = statusData
-
-        // If none of the requests succeeded, set an error
-        if (!healthData && !infoData && !statusData) {
-          throw new Error('All API endpoints are unreachable')
-        }
-      }
-      catch (err) {
-        console.error('Failed to fetch API data:', err)
-        error.value = {
-          title: 'API Connection Error',
-          message: 'Unable to connect to the API. Please check your connection and try again.',
-        }
-      }
-      finally {
-        isLoading.value = false
-      }
-    }
-
-    const startRefreshInterval = () => {
-      refreshInterval = setInterval(() => {
-        fetchApiData()
-      }, DEFAULT_VALUES.API_REFRESH_INTERVAL)
-    }
-
-    const stopRefreshInterval = () => {
-      if (refreshInterval) {
-        clearInterval(refreshInterval)
-        refreshInterval = null
-      }
-    }
-
-    onMounted(() => {
-      fetchApiData()
-      startRefreshInterval()
-    })
-
-    onUnmounted(() => {
-      stopRefreshInterval()
-    })
-
+const healthStatus = computed(() => {
+  if (isLoading.value) {
     return {
-      health,
-      apiInfo,
-      systemStatus,
-      error,
-      isLoading,
-      healthStatus,
-      fetchApiData,
+      color: 'gray',
+      variant: 'soft',
+      text: 'Checking...',
     }
-  },
+  }
+
+  if (error.value) {
+    return {
+      color: 'red',
+      variant: 'solid',
+      text: 'Offline',
+    }
+  }
+
+  if (health.value?.status === 'healthy') {
+    return {
+      color: 'green',
+      variant: 'solid',
+      text: 'Online',
+    }
+  }
+
+  return {
+    color: 'yellow',
+    variant: 'solid',
+    text: 'Unknown',
+  }
+})
+
+async function fetchApiData() {
+  try {
+    error.value = null
+
+    // Fetch all API data in parallel
+    const [healthData, infoData, statusData] = await Promise.all([
+      api.health().catch(() => null),
+      api.info().catch(() => null),
+      api.status().catch(() => null),
+    ])
+
+    health.value = healthData
+    apiInfo.value = infoData
+    systemStatus.value = statusData
+
+    // If none of the requests succeeded, set an error
+    if (!healthData && !infoData && !statusData) {
+      throw new Error('All API endpoints are unreachable')
+    }
+  }
+  catch (err) {
+    console.error('Failed to fetch API data:', err)
+    error.value = {
+      title: 'API Connection Error',
+      message: 'Unable to connect to the API. Please check your connection and try again.',
+    }
+  }
+  finally {
+    isLoading.value = false
+  }
 }
+
+function startRefreshInterval() {
+  refreshInterval = setInterval(() => {
+    fetchApiData()
+  }, DEFAULT_VALUES.API_REFRESH_INTERVAL)
+}
+
+function stopRefreshInterval() {
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
+  }
+}
+
+onMounted(() => {
+  fetchApiData()
+  startRefreshInterval()
+})
+
+onUnmounted(() => {
+  stopRefreshInterval()
+})
 </script>
 
 <template>

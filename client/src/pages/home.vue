@@ -1,4 +1,4 @@
-<script>
+<script setup>
 import { saveAs } from 'file-saver'
 import { computed, ref } from 'vue'
 import ApiStatus from '@/components/ApiStatus.vue'
@@ -10,179 +10,150 @@ import { useApi } from '@/composables/useApi'
 import { useZipCreation } from '@/composables/useZipCreation'
 import { GENERATION_STATES } from '@/utils/constants'
 
-export default {
-  name: 'App',
-  components: {
-    ApiStatus,
-    GenerationForm,
-    FileUpload,
-    InstructionsPanel,
-    LoadingSpinner,
-  },
-  setup() {
-    const api = useApi()
-    const { createZip } = useZipCreation()
+const api = useApi()
+const { createZip } = useZipCreation()
 
-    // State
-    const formData = ref({
-      title: '',
-      includeToc: true,
-      isValid: false,
-    })
+// State
+const formData = ref({
+  title: '',
+  includeToc: true,
+  isValid: false,
+})
 
-    const fileUploadData = ref({
-      files: [],
-      validation: { isValid: false, hasMarkdown: false, errors: [] },
-      markdownFiles: [],
-      imageFiles: [],
-    })
+const fileUploadData = ref({
+  files: [],
+  validation: { isValid: false, hasMarkdown: false, errors: [] },
+  markdownFiles: [],
+  imageFiles: [],
+})
 
-    const isGenerating = ref(false)
-    const generationState = ref(GENERATION_STATES.IDLE)
-    const error = ref(null)
+const isGenerating = ref(false)
+const generationState = ref(GENERATION_STATES.IDLE)
+const error = ref(null)
 
-    // Computed
-    const canGenerate = computed(() => {
-      return formData.value.isValid
-        && fileUploadData.value.validation.isValid
-        && fileUploadData.value.markdownFiles.length === 1
-        && !isGenerating.value
-    })
+// Computed
+const canGenerate = computed(() => {
+  return formData.value.isValid
+    && fileUploadData.value.validation.isValid
+    && fileUploadData.value.markdownFiles.length === 1
+    && !isGenerating.value
+})
 
-    const canCancel = computed(() => {
-      return generationState.value === GENERATION_STATES.VALIDATING
-        || generationState.value === GENERATION_STATES.CREATING_ZIP
-    })
+const canCancel = computed(() => {
+  return generationState.value === GENERATION_STATES.VALIDATING
+    || generationState.value === GENERATION_STATES.CREATING_ZIP
+})
 
-    // Event Handlers
-    const onFormChange = (data) => {
-      formData.value = data
+// Event Handlers
+function onFormChange(data) {
+  formData.value = data
+}
+
+function onFilesChange(data) {
+  fileUploadData.value = data
+}
+
+// Utility Functions
+function formatFileSize(bytes) {
+  if (bytes === 0)
+    return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
+}
+
+function getTotalSize() {
+  return fileUploadData.value.files.reduce((total, file) => total + file.file.size, 0)
+}
+
+function clearError() {
+  error.value = null
+}
+
+function setError(title, message) {
+  error.value = { title, message }
+}
+
+// Generation Process
+async function generatePdf() {
+  if (!canGenerate.value)
+    return
+
+  try {
+    isGenerating.value = true
+    error.value = null
+
+    // Step 1: Validation
+    generationState.value = GENERATION_STATES.VALIDATING
+    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate validation time
+
+    if (!fileUploadData.value.markdownFiles.length) {
+      throw new Error('No markdown file found')
     }
 
-    const onFilesChange = (data) => {
-      fileUploadData.value = data
+    // Step 2: Create ZIP
+    generationState.value = GENERATION_STATES.CREATING_ZIP
+    const zipBlob = await createZip(
+      fileUploadData.value.markdownFiles[0].file,
+      fileUploadData.value.imageFiles.map(f => f.file),
+    )
+
+    // Step 3: Upload and Convert
+    generationState.value = GENERATION_STATES.UPLOADING
+    const convertData = {
+      title: formData.value.title,
+      include_toc: formData.value.includeToc,
     }
 
-    // Utility Functions
-    const formatFileSize = (bytes) => {
-      if (bytes === 0)
-        return '0 B'
-      const k = 1024
-      const sizes = ['B', 'KB', 'MB', 'GB']
-      const i = Math.floor(Math.log(bytes) / Math.log(k))
-      return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
+    generationState.value = GENERATION_STATES.GENERATING
+    const pdfBlob = await api.convert(zipBlob, convertData)
+
+    // Step 4: Download
+    generationState.value = GENERATION_STATES.DOWNLOADING
+    await new Promise(resolve => setTimeout(resolve, 500)) // Simulate download prep
+
+    // Save the PDF
+    const filename = `${formData.value.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`
+    saveAs(pdfBlob, filename)
+
+    generationState.value = GENERATION_STATES.SUCCESS
+  }
+  catch (err) {
+    console.error('PDF generation failed:', err)
+    generationState.value = GENERATION_STATES.ERROR
+
+    let errorMessage = 'An unexpected error occurred during PDF generation.'
+
+    if (err.message.includes('network') || err.message.includes('fetch')) {
+      errorMessage = 'Network error: Please check your internet connection and try again.'
+    }
+    else if (err.message.includes('file') || err.message.includes('format')) {
+      errorMessage = 'File error: Please check your files and try again.'
+    }
+    else if (err.message.includes('server') || err.status >= 500) {
+      errorMessage = 'Server error: The service is temporarily unavailable. Please try again later.'
+    }
+    else if (err.status === 400) {
+      errorMessage = 'Invalid request: Please check your input and try again.'
     }
 
-    const getTotalSize = () => {
-      return fileUploadData.value.files.reduce((total, file) => total + file.file.size, 0)
-    }
+    setError('PDF Generation Failed', errorMessage)
+  }
+  finally {
+    setTimeout(() => {
+      isGenerating.value = false
+      generationState.value = GENERATION_STATES.IDLE
+    }, 1000)
+  }
+}
 
-    const clearError = () => {
-      error.value = null
-    }
-
-    const setError = (title, message) => {
-      error.value = { title, message }
-    }
-
-    // Generation Process
-    const generatePdf = async () => {
-      if (!canGenerate.value)
-        return
-
-      try {
-        isGenerating.value = true
-        error.value = null
-
-        // Step 1: Validation
-        generationState.value = GENERATION_STATES.VALIDATING
-        await new Promise(resolve => setTimeout(resolve, 500)) // Simulate validation time
-
-        if (!fileUploadData.value.markdownFiles.length) {
-          throw new Error('No markdown file found')
-        }
-
-        // Step 2: Create ZIP
-        generationState.value = GENERATION_STATES.CREATING_ZIP
-        const zipBlob = await createZip(
-          fileUploadData.value.markdownFiles[0].file,
-          fileUploadData.value.imageFiles.map(f => f.file),
-        )
-
-        // Step 3: Upload and Convert
-        generationState.value = GENERATION_STATES.UPLOADING
-        const convertData = {
-          title: formData.value.title,
-          include_toc: formData.value.includeToc,
-        }
-
-        generationState.value = GENERATION_STATES.GENERATING
-        const pdfBlob = await api.convert(zipBlob, convertData)
-
-        // Step 4: Download
-        generationState.value = GENERATION_STATES.DOWNLOADING
-        await new Promise(resolve => setTimeout(resolve, 500)) // Simulate download prep
-
-        // Save the PDF
-        const filename = `${formData.value.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`
-        saveAs(pdfBlob, filename)
-
-        generationState.value = GENERATION_STATES.SUCCESS
-      }
-      catch (err) {
-        console.error('PDF generation failed:', err)
-        generationState.value = GENERATION_STATES.ERROR
-
-        let errorMessage = 'An unexpected error occurred during PDF generation.'
-
-        if (err.message.includes('network') || err.message.includes('fetch')) {
-          errorMessage = 'Network error: Please check your internet connection and try again.'
-        }
-        else if (err.message.includes('file') || err.message.includes('format')) {
-          errorMessage = 'File error: Please check your files and try again.'
-        }
-        else if (err.message.includes('server') || err.status >= 500) {
-          errorMessage = 'Server error: The service is temporarily unavailable. Please try again later.'
-        }
-        else if (err.status === 400) {
-          errorMessage = 'Invalid request: Please check your input and try again.'
-        }
-
-        setError('PDF Generation Failed', errorMessage)
-      }
-      finally {
-        setTimeout(() => {
-          isGenerating.value = false
-          generationState.value = GENERATION_STATES.IDLE
-        }, 1000)
-      }
-    }
-
-    const cancelGeneration = () => {
-      if (canCancel.value) {
-        isGenerating.value = false
-        generationState.value = GENERATION_STATES.IDLE
-        setError('Generation Cancelled', 'PDF generation was cancelled by user.')
-      }
-    }
-
-    return {
-      formData,
-      fileUploadData,
-      isGenerating,
-      generationState,
-      error,
-      canGenerate,
-      canCancel,
-      onFormChange,
-      onFilesChange,
-      generatePdf,
-      cancelGeneration,
-      formatFileSize,
-      getTotalSize,
-      clearError,
-    }
-  },
+function cancelGeneration() {
+  if (canCancel.value) {
+    isGenerating.value = false
+    generationState.value = GENERATION_STATES.IDLE
+    setError('Generation Cancelled', 'PDF generation was cancelled by user.')
+  }
 }
 </script>
 

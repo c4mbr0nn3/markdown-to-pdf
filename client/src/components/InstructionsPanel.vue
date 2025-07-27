@@ -38,7 +38,7 @@ export default {
 
           <div v-if="section.type === 'steps'">
             <ol class="list-decimal list-inside space-y-2">
-              <li v-for="step in section.content" :key="step" class="text-gray-700">
+              <li v-for="step in section.content" :key="step">
                 {{ step }}
               </li>
             </ol>
@@ -46,22 +46,22 @@ export default {
 
           <div v-else-if="section.type === 'list'">
             <ul class="list-disc list-inside space-y-1">
-              <li v-for="item in section.content" :key="item" class="text-gray-700">
+              <li v-for="item in section.content" :key="item">
                 {{ item }}
               </li>
             </ul>
           </div>
 
-          <p v-else class="text-gray-600">
+          <p v-else>
             {{ section.content }}
           </p>
         </div>
 
-        <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h4 class="font-semibold text-blue-900 mb-2">
+        <div class="mt-8 p-4 rounded-lg">
+          <h4 class="font-semibold mb-2">
             Need More Help?
           </h4>
-          <p class="text-blue-700 text-sm">
+          <p class="text-sm">
             If you encounter any issues, check the API status indicator at the top of the page
             or verify your internet connection.
           </p>

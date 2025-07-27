@@ -5,7 +5,7 @@ import { debounce, validateTitle } from '@/utils/validation'
 
 export default {
   name: 'GenerationForm',
-  emits: ['form-change'],
+  emits: ['formChange'],
   setup(props, { emit }) {
     const title = ref(DEFAULT_VALUES.TITLE)
     const includeToc = ref(DEFAULT_VALUES.INCLUDE_TOC)
@@ -20,7 +20,7 @@ export default {
 
     // Debounced title change handler
     const debouncedEmit = debounce(() => {
-      emit('form-change', {
+      emit('formChange', {
         title: titleValidation.value.sanitized,
         includeToc: includeToc.value,
         isValid: isFormValid.value,
@@ -33,7 +33,7 @@ export default {
 
     // Watch for TOC changes
     watch(includeToc, () => {
-      emit('form-change', {
+      emit('formChange', {
         title: titleValidation.value.sanitized,
         includeToc: includeToc.value,
         isValid: isFormValid.value,
@@ -41,7 +41,7 @@ export default {
     })
 
     // Initial emit
-    emit('form-change', {
+    emit('formChange', {
       title: titleValidation.value.sanitized,
       includeToc: includeToc.value,
       isValid: isFormValid.value,
@@ -63,7 +63,7 @@ export default {
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <!-- Title Input -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium mb-2">
           Document Title *
         </label>
         <UInput
@@ -82,14 +82,14 @@ export default {
             {{ error }}
           </p>
         </div>
-        <p class="mt-1 text-sm text-gray-500">
+        <p class="mt-1 text-sm ">
           {{ title.length }}/200 characters
         </p>
       </div>
 
       <!-- Include TOC Checkbox -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-2">
+        <label class="block text-sm font-medium mb-2">
           Table of Contents
         </label>
         <div class="flex items-center space-x-3">
@@ -98,29 +98,26 @@ export default {
             name="includeToc"
             size="lg"
           />
-          <span class="text-sm text-gray-600">
+          <span class="text-sm">
             Include table of contents in the PDF
           </span>
         </div>
-        <p class="mt-1 text-sm text-gray-500">
+        <p class="mt-1 text-sm">
           Automatically generated from markdown headers
         </p>
       </div>
     </div>
 
     <!-- Form Summary -->
-    <div class="bg-gray-50 rounded-lg p-4">
-      <h4 class="text-sm font-medium text-gray-900 mb-2">
+    <div class="rounded-lg p-4">
+      <h4 class="text-sm font-medium mb-2">
         Form Status
       </h4>
       <div class="flex items-center space-x-4">
-        <UBadge
-          :color="titleValidation.isValid ? 'green' : 'red'"
-          :variant="titleValidation.isValid ? 'soft' : 'solid'"
-        >
+        <UBadge>
           Title: {{ titleValidation.isValid ? 'Valid' : 'Invalid' }}
         </UBadge>
-        <UBadge color="blue" variant="soft">
+        <UBadge>
           TOC: {{ includeToc ? 'Enabled' : 'Disabled' }}
         </UBadge>
       </div>

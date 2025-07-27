@@ -187,16 +187,16 @@ export default {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow">
+    <header class="shadow">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-between">
           <div>
-            <h1 class="text-3xl font-bold text-gray-900">
+            <h1 class="text-3xl font-bold ">
               Markdown to PDF Converter
             </h1>
-            <p class="mt-1 text-sm text-gray-600">
+            <p class="mt-1 text-sm text-gray-400">
               Convert your markdown documents to professional PDFs
             </p>
           </div>
@@ -227,7 +227,7 @@ export default {
         <!-- Generation Form -->
         <UCard>
           <template #header>
-            <h2 class="text-xl font-semibold text-gray-900">
+            <h2 class="text-xl font-semibold">
               Document Settings
             </h2>
           </template>
@@ -238,7 +238,7 @@ export default {
         <!-- File Upload -->
         <UCard>
           <template #header>
-            <h2 class="text-xl font-semibold text-gray-900">
+            <h2 class="text-xl font-semibold">
               File Upload
             </h2>
           </template>
@@ -265,11 +265,11 @@ export default {
         </div>
 
         <!-- Generation Summary -->
-        <div v-if="formData.title || fileUploadData.files.length > 0" class="bg-blue-50 rounded-lg p-4">
-          <h3 class="text-sm font-medium text-blue-900 mb-2">
+        <div v-if="formData.title || fileUploadData.files.length > 0" class="rounded-lg p-4">
+          <h3 class="text-sm font-medium mb-2">
             Generation Summary
           </h3>
-          <div class="text-sm text-blue-700 space-y-1">
+          <div class="text-sm space-y-1">
             <p v-if="formData.title">
               <strong>Title:</strong> {{ formData.title }}
             </p>
@@ -307,7 +307,7 @@ export default {
     </main>
 
     <!-- Footer -->
-    <footer class="mt-12 border-t border-gray-200 bg-white">
+    <footer class="mt-12 border-t border-gray-600 ">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="text-center text-sm text-gray-600">
           <p>Markdown to PDF Converter • Professional document generation</p>

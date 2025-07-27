@@ -4,7 +4,7 @@ import { useFileUpload } from '@/composables/useFileUpload'
 
 export default {
   name: 'FileUpload',
-  emits: ['files-change'],
+  emits: ['filesChange'],
   setup(props, { emit }) {
     const fileInput = ref(null)
 
@@ -29,17 +29,22 @@ export default {
 
     const dropZoneClasses = computed(() => [
       'border-2 border-dashed rounded-lg p-8 cursor-pointer transition-all duration-200',
-      {
-        'border-blue-400 bg-blue-50': isDragOver.value,
-        'border-gray-300 hover:border-gray-400': !isDragOver.value,
-        'bg-gray-50': !isDragOver.value,
-      },
     ])
 
     const openFileDialog = () => {
       if (fileInput.value) {
         fileInput.value.click()
       }
+    }
+
+    const emitFilesChange = () => {
+      const validation = validateFiles()
+      emit('filesChange', {
+        files: files.value,
+        validation,
+        markdownFiles: markdownFiles.value,
+        imageFiles: imageFiles.value,
+      })
     }
 
     const onFileSelect = (event) => {
@@ -86,16 +91,6 @@ export default {
     const clearAllFiles = () => {
       clearFiles()
       emitFilesChange()
-    }
-
-    const emitFilesChange = () => {
-      const validation = validateFiles()
-      emit('files-change', {
-        files: files.value,
-        validation,
-        markdownFiles: markdownFiles.value,
-        imageFiles: imageFiles.value,
-      })
     }
 
     // Initial emit
@@ -148,15 +143,15 @@ export default {
       >
 
       <div class="text-center">
-        <div class="mx-auto h-12 w-12 text-gray-400 mb-4">
+        <div class="mx-auto h-12 w-12 mb-4">
           <svg class="h-12 w-12" stroke="currentColor" fill="none" viewBox="0 0 48 48">
             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
-        <div class="text-lg font-medium text-gray-900 mb-2">
+        <div class="text-lg font-medium mb-2">
           {{ isDragOver ? 'Drop files here' : 'Upload your files' }}
         </div>
-        <p class="text-sm text-gray-600 mb-4">
+        <p class="text-sm mb-4">
           Drag and drop your markdown and image files, or click to browse
         </p>
         <div class="flex justify-center space-x-2">
@@ -167,16 +162,16 @@ export default {
             Images: .png, .jpg, .jpeg
           </UBadge>
         </div>
-        <p class="text-xs text-gray-500 mt-2">
+        <p class="text-xs mt-2">
           Maximum total size: 50MB
         </p>
       </div>
     </div>
 
     <!-- File Validation Status -->
-    <div v-if="files.length > 0" class="bg-gray-50 rounded-lg p-4">
+    <div v-if="files.length > 0" class="rounded-lg p-4">
       <div class="flex items-center justify-between mb-3">
-        <h4 class="text-sm font-medium text-gray-900">
+        <h4 class="text-sm font-medium">
           Upload Status
         </h4>
         <UButton
@@ -220,7 +215,7 @@ export default {
 
     <!-- File List -->
     <div v-if="files.length > 0" class="space-y-3">
-      <h4 class="text-sm font-medium text-gray-900">
+      <h4 class="text-sm font-medium">
         Uploaded Files
       </h4>
 
@@ -244,10 +239,10 @@ export default {
 
             <!-- File Info -->
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate">
+              <p class="text-sm font-medium truncate">
                 {{ file.file.name }}
               </p>
-              <div class="flex items-center space-x-2 text-xs text-gray-500">
+              <div class="flex items-center space-x-2 text-xs">
                 <span>{{ formatFileSize(file.file.size) }}</span>
                 <span>{{ getFileExtension(file.file.name).toUpperCase() }}</span>
               </div>
@@ -277,7 +272,7 @@ export default {
     </div>
 
     <!-- Drop Zone Instructions -->
-    <div v-if="files.length === 0" class="text-center text-sm text-gray-500">
+    <div v-if="files.length === 0" class="text-center text-sm">
       <p>No files uploaded yet. Start by adding exactly one markdown file.</p>
     </div>
   </div>

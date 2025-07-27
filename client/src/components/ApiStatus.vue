@@ -127,11 +127,11 @@ export default {
           >
             {{ healthStatus.text }}
           </UBadge>
-          <span class="text-sm text-gray-600">API Status</span>
+          <span class="text-sm">API Status</span>
         </div>
 
         <!-- API Info -->
-        <div v-if="apiInfo" class="flex items-center space-x-4 text-sm text-gray-600">
+        <div v-if="apiInfo" class="flex items-center space-x-4 text-sm">
           <span>Max: {{ apiInfo.max_file_size }}</span>
           <span>Images: {{ apiInfo.supported_images.join(', ') }}</span>
           <span>v{{ apiInfo.version }}</span>
@@ -145,7 +145,7 @@ export default {
           >
             {{ systemStatus.environment }}
           </UBadge>
-          <span class="text-sm text-gray-600">Uptime: {{ systemStatus.uptime }}</span>
+          <span class="text-sm">Uptime: {{ systemStatus.uptime }}</span>
         </div>
       </div>
 

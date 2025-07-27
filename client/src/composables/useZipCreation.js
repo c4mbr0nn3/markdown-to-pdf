@@ -1,24 +1,22 @@
 import JSZip from 'jszip'
 
 export function useZipCreation() {
-  const createZip = async (files) => {
+  const createZip = async ({ markdownFiles, imageFiles }) => {
     try {
       const zip = new JSZip()
 
       // Add the single markdown file (validated to be exactly one)
-      const markdownFiles = files.filter(f => f.type === 'markdown')
       if (markdownFiles.length === 1) {
         const markdownFile = markdownFiles[0]
-        zip.file(markdownFile.file.name, markdownFile.file)
+        zip.file(markdownFile.name, markdownFile)
       }
       else {
         throw new Error('Exactly one markdown file is required')
       }
 
       // Add images to images/ folder
-      const imageFiles = files.filter(f => f.type === 'image')
       for (const fileObj of imageFiles) {
-        zip.file(`images/${fileObj.file.name}`, fileObj.file)
+        zip.file(`images/${fileObj.name}`, fileObj)
       }
 
       // Generate the ZIP file

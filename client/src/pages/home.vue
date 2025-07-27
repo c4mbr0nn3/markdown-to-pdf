@@ -62,17 +62,19 @@ async function generatePdf() {
     generationState.value = GENERATION_STATES.VALIDATING
     await new Promise(resolve => setTimeout(resolve, 500)) // Simulate validation time
 
-    if (!fileUploadData.value.markdownFiles.length) {
-      throw new Error('No markdown file found')
+    if (!fileUploadData.value.files.length) {
+      throw new Error('No file found')
     }
 
     // Step 2: Create ZIP
     generationState.value = GENERATION_STATES.CREATING_ZIP
-    const zipBlob = await createZip(
-      fileUploadData.value.markdownFiles[0].file,
-      fileUploadData.value.imageFiles.map(f => f.file),
-    )
+    const markdownFiles = fileUploadData.value.files.filter(f => f.type === 'text/markdown')
 
+    const imageFiles = fileUploadData.value.files.filter(f => f.type.startsWith('image/'))
+    const zipBlob = await createZip({
+      markdownFiles,
+      imageFiles,
+    })
     // Step 3: Upload and Convert
     generationState.value = GENERATION_STATES.UPLOADING
     const convertData = {

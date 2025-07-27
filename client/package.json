@@ -10,17 +10,17 @@
     "lint": "eslint . --fix"
   },
   "dependencies": {
-    "vue": "^3.4.0",
-    "@nuxt/ui": "^3.0.0",
-    "@vueuse/core": "^10.7.0",
-    "ky": "^1.2.0",
+    "@nuxt/ui": "^3.3.0",
+    "@vueuse/core": "^13.0.0",
+    "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
-    "file-saver": "^2.0.5"
+    "ky": "^1.8.2",
+    "vue": "^3.4.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.0",
-    "vite": "^5.0.0",
-    "@antfu/eslint-config": "^2.6.0",
-    "eslint": "^8.56.0"
+    "@antfu/eslint-config": "^5.0.0",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "eslint": "^9.32.0",
+    "vite": "^7.0.6"
   }
 }

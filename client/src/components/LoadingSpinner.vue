@@ -64,28 +64,18 @@ const progressPercentage = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center p-8">
-    <!-- Spinner Animation -->
-    <div class="relative">
-      <div class="h-12 w-12 rounded-full border-4 border-gray-200 animate-spin border-t-blue-600" />
-    </div>
-
+  <div class="flex flex-col items-center justify-center px-8">
     <!-- Loading Text -->
-    <div class="mt-4 text-center">
-      <h3 class="text-lg font-medium text-gray-900 mb-2">
+    <div class="text-center">
+      <h3 class="text-lg font-medium mb-2">
         {{ currentStep.title }}
       </h3>
-      <p class="text-sm text-gray-600 mb-4">
+      <p class="text-sm text-gray-400 mb-4">
         {{ currentStep.description }}
       </p>
 
       <!-- Progress Indicator -->
-      <div class="w-64 bg-gray-200 rounded-full h-2">
-        <div
-          class="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-in-out"
-          :style="{ width: `${progressPercentage}%` }"
-        />
-      </div>
+      <UProgress v-model="progressPercentage" />
 
       <p class="text-xs text-gray-500 mt-2">
         Step {{ currentStepIndex + 1 }} of {{ steps.length }}
@@ -94,8 +84,8 @@ const progressPercentage = computed(() => {
 
     <!-- Detailed Status -->
     <div v-if="showDetails" class="mt-6 max-w-md">
-      <div class="bg-gray-50 rounded-lg p-4">
-        <h4 class="text-sm font-medium text-gray-900 mb-2">
+      <div class=" p-4">
+        <h4 class="text-sm font-medium mb-2">
           Process Details
         </h4>
         <div class="space-y-2">
@@ -111,11 +101,7 @@ const progressPercentage = computed(() => {
                   : 'bg-gray-300',
               ]"
             />
-            <span
-              :class="[
-                index <= currentStepIndex ? 'text-gray-900' : 'text-gray-500',
-              ]"
-            >
+            <span :class="[index <= currentStepIndex ? 'text-green-500' : '']">
               {{ step.title }}
             </span>
           </div>

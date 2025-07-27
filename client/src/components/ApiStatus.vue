@@ -15,7 +15,7 @@ let refreshInterval = null
 const healthStatus = computed(() => {
   if (isLoading.value) {
     return {
-      color: 'gray',
+      color: 'neutral',
       variant: 'soft',
       text: 'Checking...',
     }
@@ -23,7 +23,7 @@ const healthStatus = computed(() => {
 
   if (error.value) {
     return {
-      color: 'red',
+      color: 'error',
       variant: 'solid',
       text: 'Offline',
     }
@@ -31,14 +31,14 @@ const healthStatus = computed(() => {
 
   if (health.value?.status === 'healthy') {
     return {
-      color: 'green',
+      color: 'primary',
       variant: 'solid',
       text: 'Online',
     }
   }
 
   return {
-    color: 'yellow',
+    color: 'warning',
     variant: 'solid',
     text: 'Unknown',
   }
@@ -125,7 +125,7 @@ onUnmounted(() => {
         <!-- System Status -->
         <div v-if="systemStatus" class="flex items-center space-x-3">
           <UBadge
-            :color="systemStatus.environment === 'development' ? 'yellow' : 'blue'"
+            :color="systemStatus.environment === 'development' ? 'warning' : 'secondary'"
             variant="soft"
           >
             {{ systemStatus.environment }}
@@ -137,7 +137,7 @@ onUnmounted(() => {
       <!-- Error Display -->
       <div v-if="error" class="mt-4">
         <UAlert
-          color="red"
+          color="error"
           variant="soft"
           :title="error.title"
           :description="error.message"

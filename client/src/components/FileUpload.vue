@@ -93,29 +93,6 @@ function clearAllFiles() {
 
 // Initial emit
 emitFilesChange()
-
-return {
-  fileInput,
-  files,
-  isDragOver,
-  markdownFiles,
-  imageFiles,
-  isValidFileCount,
-  totalSize,
-  isValidTotalSize,
-  validationStatus,
-  dropZoneClasses,
-  openFileDialog,
-  onFileSelect,
-  onDrop,
-  onDragOver,
-  onDragEnter,
-  onDragLeave,
-  removeFile: onRemoveFile,
-  clearAllFiles,
-  getFileExtension,
-  formatFileSize,
-}
 </script>
 
 <template>
@@ -151,10 +128,10 @@ return {
           Drag and drop your markdown and image files, or click to browse
         </p>
         <div class="flex justify-center space-x-2">
-          <UBadge color="blue" variant="soft">
+          <UBadge color="secondary" variant="soft">
             Markdown: .md, .markdown
           </UBadge>
-          <UBadge color="green" variant="soft">
+          <UBadge color="primary" variant="soft">
             Images: .png, .jpg, .jpeg
           </UBadge>
         </div>
@@ -171,27 +148,28 @@ return {
           Upload Status
         </h4>
         <UButton
-          color="red"
+          icon="i-lucide-trash-2"
+          :disabled="files.length === 0"
+          label="Clear All"
+          color="error"
           variant="soft"
-          size="xs"
+          size="sm"
           @click="clearAllFiles"
-        >
-          Clear All
-        </UButton>
+        />
       </div>
 
       <div class="flex flex-wrap gap-2 mb-3">
         <UBadge
-          :color="validationStatus.hasMarkdown && validationStatus.markdownCount === 1 ? 'green' : 'red'"
+          :color="validationStatus.hasMarkdown && validationStatus.markdownCount === 1 ? 'primary' : 'error'"
           :variant="validationStatus.hasMarkdown && validationStatus.markdownCount === 1 ? 'soft' : 'solid'"
         >
           Markdown: {{ validationStatus.markdownCount }}/1
         </UBadge>
-        <UBadge color="blue" variant="soft">
+        <UBadge color="secondary" variant="soft">
           Images: {{ imageFiles.length }}
         </UBadge>
         <UBadge
-          :color="isValidTotalSize ? 'green' : 'red'"
+          :color="isValidTotalSize ? 'primary' : 'error'"
           :variant="isValidTotalSize ? 'soft' : 'solid'"
         >
           Size: {{ formatFileSize(totalSize) }}/50MB
@@ -202,7 +180,7 @@ return {
         <UAlert
           v-for="error in validationStatus.errors"
           :key="error"
-          color="red"
+          color="error"
           variant="soft"
           :description="error"
         />
@@ -219,15 +197,15 @@ return {
         <div
           v-for="file in files"
           :key="file.id"
-          class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors"
+          class="flex items-center justify-between p-3 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
         >
           <div class="flex items-center space-x-3 flex-1 min-w-0">
             <!-- File Type Icon -->
             <div class="flex-shrink-0">
               <UBadge
-                :color="file.type === 'markdown' ? 'blue' : 'green'"
+                :color="file.type === 'markdown' ? 'secondary' : 'primary'"
                 variant="soft"
-                size="xs"
+                size="sm"
               >
                 {{ file.type === 'markdown' ? 'MD' : 'IMG' }}
               </UBadge>
@@ -249,20 +227,21 @@ return {
               <img
                 :src="file.preview"
                 :alt="file.file.name"
-                class="h-10 w-10 object-cover rounded border border-gray-200"
+                class="h-10 w-10 object-cover rounded border border-gray-800"
               >
             </div>
           </div>
 
           <!-- Remove Button -->
           <UButton
-            color="red"
+            label="Remove"
+            icon="i-lucide-trash-2"
+            color="error"
             variant="soft"
-            size="xs"
-            @click="removeFile(file.id)"
-          >
-            Remove
-          </UButton>
+            size="sm"
+            class="ml-3"
+            @click="onRemoveFile(file.id)"
+          />
         </div>
       </div>
     </div>

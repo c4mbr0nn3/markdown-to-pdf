@@ -102,10 +102,16 @@ emit('formChange', {
         Form Status
       </h4>
       <div class="flex items-center space-x-4">
-        <UBadge>
+        <UBadge
+          :color="titleValidation.isValid ? 'primary' : 'error'"
+          :variant="titleValidation.isValid ? 'soft' : 'solid'"
+        >
           Title: {{ titleValidation.isValid ? 'Valid' : 'Invalid' }}
         </UBadge>
-        <UBadge>
+        <UBadge
+          :color="includeToc ? 'primary' : 'error'"
+          :variant="includeToc ? 'soft' : 'solid'"
+        >
           TOC: {{ includeToc ? 'Enabled' : 'Disabled' }}
         </UBadge>
       </div>

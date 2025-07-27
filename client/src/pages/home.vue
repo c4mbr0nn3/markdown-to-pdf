@@ -79,7 +79,7 @@ async function generatePdf() {
     generationState.value = GENERATION_STATES.UPLOADING
     const convertData = {
       title: formData.value.title,
-      include_toc: formData.value.includeToc,
+      include_toc: formData.value.includeToc.toString(),
     }
 
     generationState.value = GENERATION_STATES.GENERATING

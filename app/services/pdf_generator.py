@@ -156,7 +156,7 @@ class PDFGenerator:
                 'markdown.extensions.toc': {
                     'title': 'Table of Contents',
                     'anchorlink': True,
-                    'permalink': True
+                    'permalink': False
                 },
                 'markdown.extensions.codehilite': {
                     'css_class': 'highlight',

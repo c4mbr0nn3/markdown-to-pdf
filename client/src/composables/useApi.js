@@ -34,8 +34,13 @@ export function useApi() {
     }
   }
 
-  const convert = async (formData) => {
+  const convert = async (zipFile, { title, include_toc = 'true' }) => {
     try {
+      const formData = new FormData()
+      formData.append('file', zipFile)
+      formData.append('title', title)
+      formData.append('include_toc', include_toc)
+
       return await client.post('api/v1/convert', {
         body: formData,
         timeout: 120000, // 2 minutes timeout for PDF generation

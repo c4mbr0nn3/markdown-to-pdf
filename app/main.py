@@ -12,8 +12,8 @@ from app.models.responses import HealthResponse, ApiInfoResponse, ApiStatusRespo
 from app.services.zip_processor import ZipProcessor
 from app.services.pdf_generator import PDFGenerator
 from app.utils.validators import (
-    validate_upload_file, 
-    validate_title, 
+    validate_upload_file,
+    validate_title,
     validate_boolean_parameter,
     ValidationError,
     create_error_response,
@@ -31,17 +31,17 @@ async def lifespan(app: FastAPI):
     # Startup
     setup_logging(settings.log_level, settings.api_env)
     logger.info("Starting Markdown to PDF API", extra={"version": "1.0.0", "environment": settings.api_env})
-    
+
     # Validate PDF generator requirements
     pdf_generator = PDFGenerator()
     if not pdf_generator.validate_requirements():
         logger.error("PDF generator validation failed - missing required template files")
         raise RuntimeError("PDF generator validation failed")
-    
+
     logger.info("API startup completed successfully")
-    
+
     yield
-    
+
     # Shutdown
     logger.info("API shutdown completed")
 
@@ -66,98 +66,98 @@ app.add_middleware(
 )
 
 
-@app.middleware("http")
-async def logging_middleware(request: Request, call_next):
-    """Middleware for request/response logging."""
-    request_id = str(uuid.uuid4())
-    start_time = time.time()
-    
-    # Log request
-    logger.info(
-        "Request received",
-        extra={
-            "request_id": request_id,
-            "method": request.method,
-            "url": str(request.url),
-            "client_ip": request.client.host if request.client else None
-        }
-    )
-    
-    # Process request
-    try:
-        response = await call_next(request)
-        
-        # Log response
-        process_time = time.time() - start_time
-        logger.info(
-            "Request completed",
-            extra={
-                "request_id": request_id,
-                "status_code": response.status_code,
-                "process_time": round(process_time, 3)
-            }
-        )
-        
-        # Add request ID to response headers
-        response.headers["X-Request-ID"] = request_id
-        return response
-        
-    except Exception as e:
-        process_time = time.time() - start_time
-        logger.error(
-            "Request failed",
-            extra={
-                "request_id": request_id,
-                "error": str(e),
-                "process_time": round(process_time, 3)
-            }
-        )
-        raise
+# @app.middleware("http")
+# async def logging_middleware(request: Request, call_next):
+#     """Middleware for request/response logging."""
+#     request_id = str(uuid.uuid4())
+#     start_time = time.time()
+
+#     # Log request
+#     logger.info(
+#         "Request received",
+#         extra={
+#             "request_id": request_id,
+#             "method": request.method,
+#             "url": str(request.url),
+#             "client_ip": request.client.host if request.client else None
+#         }
+#     )
+
+#     # Process request
+#     try:
+#         response = await call_next(request)
+
+#         # Log response
+#         process_time = time.time() - start_time
+#         logger.info(
+#             "Request completed",
+#             extra={
+#                 "request_id": request_id,
+#                 "status_code": response.status_code,
+#                 "process_time": round(process_time, 3)
+#             }
+#         )
+
+#         # Add request ID to response headers
+#         response.headers["X-Request-ID"] = request_id
+#         return response
+
+#     except Exception as e:
+#         process_time = time.time() - start_time
+#         logger.error(
+#             "Request failed",
+#             extra={
+#                 "request_id": request_id,
+#                 "error": str(e),
+#                 "process_time": round(process_time, 3)
+#             }
+#         )
+#         raise
 
 
-@app.exception_handler(ValidationError)
-async def validation_exception_handler(request: Request, exc: ValidationError):
-    """Handle validation errors."""
-    request_id = request.headers.get("X-Request-ID")
-    error_response = create_error_response(exc, request_id)
-    
-    logger.warning(
-        "Validation error",
-        extra={
-            "request_id": request_id,
-            "error_code": exc.error_code,
-            "error_message": exc.message
-        }
-    )
-    
-    return HTTPException(status_code=400, detail=error_response)
+# @app.exception_handler(ValidationError)
+# async def validation_exception_handler(request: Request, exc: ValidationError):
+#     """Handle validation errors."""
+#     request_id = request.headers.get("X-Request-ID")
+#     error_response = create_error_response(exc, request_id)
+
+#     logger.warning(
+#         "Validation error",
+#         extra={
+#             "request_id": request_id,
+#             "error_code": exc.error_code,
+#             "error_message": exc.message
+#         }
+#     )
+
+#     return HTTPException(status_code=400, detail=error_response)
 
 
-@app.exception_handler(Exception)
-async def general_exception_handler(request: Request, exc: Exception):
-    """Handle general exceptions."""
-    request_id = request.headers.get("X-Request-ID")
-    
-    logger.error(
-        "Unhandled exception",
-        extra={
-            "request_id": request_id,
-            "error": str(exc),
-            "error_type": type(exc).__name__
-        }
-    )
-    
-    error_response = {
-        "error": {
-            "code": "INTERNAL_SERVER_ERROR",
-            "message": "An internal server error occurred",
-            "details": {},
-            "timestamp": None,
-            "request_id": request_id
-        }
-    }
-    
-    raise HTTPException(status_code=500, detail=error_response)
+# @app.exception_handler(Exception)
+# async def general_exception_handler(request: Request, exc: Exception):
+#     """Handle general exceptions."""
+#     request_id = request.headers.get("X-Request-ID")
+
+#     logger.error(
+#         "Unhandled exception",
+#         extra={
+#             "request_id": request_id,
+#             "error": str(exc),
+#             "error_type": type(exc).__name__
+#         }
+#     )
+
+#     error_response = {
+#         "error": {
+#             "code": "INTERNAL_SERVER_ERROR",
+#             "message": "An internal server error occurred",
+#             "details": {},
+#             "timestamp": None,
+#             "request_id": request_id
+#         }
+#     }
+
+#     raise HTTPException(status_code=500, detail=error_response)
 
 
 @app.post("/api/v1/convert")
@@ -168,11 +168,11 @@ async def convert_markdown_to_pdf(
 ):
     """
     Convert a ZIP file containing markdown and images to a branded PDF document.
-    
+
     - **file**: ZIP file containing markdown files and images
     - **title**: Document title for the cover page (required)
     - **include_toc**: Include table of contents (default: true)
-    
+
     Returns a PDF file as binary stream.
     """
     logger.info(
@@ -183,18 +183,18 @@ async def convert_markdown_to_pdf(
             "include_toc": include_toc
         }
     )
-    
+
     try:
         # Validate inputs
         file_content = await validate_upload_file(file)
         validated_title = validate_title(title)
         validated_include_toc = validate_boolean_parameter(include_toc, "include_toc")
-        
+
         # Process ZIP file
         zip_processor = ZipProcessor()
         try:
             markdown_content, image_mapping = await zip_processor.process_zip(file_content)
-            
+
             # Generate PDF
             pdf_generator = PDFGenerator()
             pdf_bytes = await pdf_generator.generate_pdf(
@@ -204,10 +204,10 @@ async def convert_markdown_to_pdf(
                 include_toc=validated_include_toc,
                 page_format="A4"
             )
-            
+
             # Create safe filename for download
             safe_filename = sanitize_filename(f"{validated_title}.pdf")
-            
+
             logger.info(
                 "PDF conversion completed successfully",
                 extra={
@@ -216,7 +216,7 @@ async def convert_markdown_to_pdf(
                     "output_filename": safe_filename
                 }
             )
-            
+
             # Return PDF as response
             return Response(
                 content=pdf_bytes,
@@ -226,10 +226,10 @@ async def convert_markdown_to_pdf(
                     "Content-Length": str(len(pdf_bytes))
                 }
             )
-            
+
         finally:
             zip_processor.cleanup()
-            
+
     except ValidationError:
         raise  # Re-raise validation errors to be handled by exception handler
     except Exception as e:
@@ -252,7 +252,7 @@ async def convert_markdown_to_pdf(
 async def health_check():
     """
     API health status check.
-    
+
     Returns the current health status of the API.
     """
     return HealthResponse(status="healthy")
@@ -262,7 +262,7 @@ async def health_check():
 async def get_api_info():
     """
     Get API capabilities and configuration information.
-    
+
     Returns information about supported formats, file size limits, and other capabilities.
     """
     return ApiInfoResponse(
@@ -274,16 +274,16 @@ async def get_api_info():
 async def get_api_status():
     """
     Get API status and runtime information.
-    
+
     Returns operational status, uptime, and environment information.
     """
     uptime_seconds = int(time.time() - startup_time)
     hours = uptime_seconds // 3600
     minutes = (uptime_seconds % 3600) // 60
     seconds = uptime_seconds % 60
-    
+
     uptime_str = f"{hours}h {minutes}m {seconds}s"
-    
+
     return ApiStatusResponse(
         status="operational",
         uptime=uptime_str,
@@ -307,7 +307,7 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "app.main:app",
         host=settings.api_host,

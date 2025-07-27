@@ -24,7 +24,7 @@ def validate_file_size(file_size: int) -> bool:
 
 def validate_file_type(file_content: bytes, expected_mime_type: str = "application/zip") -> bool:
     """
-    Validate file type using magic bytes.
+    Validate file type using magic bytes with fallback methods.
     
     Args:
         file_content: Raw file content
@@ -33,11 +33,40 @@ def validate_file_type(file_content: bytes, expected_mime_type: str = "applicati
     Returns:
         True if file type matches expected type, False otherwise
     """
+    # For ZIP files, check magic bytes directly as fallback
+    if expected_mime_type == "application/zip":
+        # ZIP files start with these magic bytes
+        zip_signatures = [
+            b'PK\x03\x04',  # Standard ZIP
+            b'PK\x05\x06',  # Empty ZIP
+            b'PK\x07\x08',  # Spanned ZIP
+        ]
+        
+        if any(file_content.startswith(sig) for sig in zip_signatures):
+            logger.debug("ZIP file detected using magic bytes")
+            return True
+    
     try:
         detected_mime_type = magic.from_buffer(file_content, mime=True)
+        logger.debug(f"Detected MIME type: {detected_mime_type}, expected: {expected_mime_type}")
+        
+        # Accept both application/zip and application/x-zip
+        if expected_mime_type == "application/zip":
+            return detected_mime_type in ["application/zip", "application/x-zip"]
+        
         return detected_mime_type == expected_mime_type
     except Exception as e:
-        logger.warning(f"Failed to detect file type: {str(e)}")
+        logger.warning(f"Failed to detect file type with magic: {str(e)}")
+        
+        # Fallback for ZIP files
+        if expected_mime_type == "application/zip":
+            zip_signatures = [
+                b'PK\x03\x04',  # Standard ZIP
+                b'PK\x05\x06',  # Empty ZIP
+                b'PK\x07\x08',  # Spanned ZIP
+            ]
+            return any(file_content.startswith(sig) for sig in zip_signatures)
+        
         return False
 
 

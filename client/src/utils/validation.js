@@ -1,31 +1,24 @@
 export function validateTitle(title) {
-  const errors = []
-
-  if (!title || !title.trim()) {
-    errors.push('Title is required')
-  }
-  else {
-    const trimmedTitle = title.trim()
-
-    if (trimmedTitle.length < 1) {
-      errors.push('Title cannot be empty')
-    }
-    else if (trimmedTitle.length > 200) {
-      errors.push('Title cannot exceed 200 characters')
-    }
-
-    // Check for invalid characters
-    const invalidChars = /[<>:"/\\|?*]/
-    if (invalidChars.test(trimmedTitle)) {
-      errors.push('Title contains invalid characters: < > : " / \\ | ? *')
-    }
+  if (!title?.trim()) {
+    return 'Title is required'
   }
 
-  return {
-    isValid: errors.length === 0,
-    errors,
-    sanitized: title ? title.trim() : '',
+  const trimmedTitle = title.trim()
+
+  if (trimmedTitle.length < 1) {
+    return 'Title cannot be empty'
   }
+  else if (trimmedTitle.length > 200) {
+    return 'Title cannot exceed 200 characters'
+  }
+
+  // Check for invalid characters
+  const invalidChars = /[<>!"/\\|?*]/
+  if (invalidChars.test(trimmedTitle)) {
+    return 'Title contains invalid characters: < > ! " / \\ | ? *'
+  }
+
+  return null
 }
 
 export function validateFileType(file) {

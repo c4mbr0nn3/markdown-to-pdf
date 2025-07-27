@@ -22,9 +22,7 @@ const formData = ref({
 
 const fileUploadData = ref({
   files: [],
-  validation: { isValid: false, hasMarkdown: false, errors: [] },
-  markdownFiles: [],
-  imageFiles: [],
+  isValid: false,
 })
 
 const isGenerating = ref(false)
@@ -34,8 +32,7 @@ const error = ref(null)
 // Computed
 const canGenerate = computed(() => {
   return formData.value.isValid
-    && fileUploadData.value.validation.isValid
-    && fileUploadData.value.markdownFiles.length === 1
+    && fileUploadData.value.isValid
     && !isGenerating.value
 })
 
@@ -43,29 +40,6 @@ const canCancel = computed(() => {
   return generationState.value === GENERATION_STATES.VALIDATING
     || generationState.value === GENERATION_STATES.CREATING_ZIP
 })
-
-// Event Handlers
-function onFormChange(data) {
-  formData.value = data
-}
-
-function onFilesChange(data) {
-  fileUploadData.value = data
-}
-
-// Utility Functions
-function formatFileSize(bytes) {
-  if (bytes === 0)
-    return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
-}
-
-function getTotalSize() {
-  return fileUploadData.value.files.reduce((total, file) => total + file.file.size, 0)
-}
 
 function clearError() {
   error.value = null
@@ -160,7 +134,7 @@ function cancelGeneration() {
 <template>
   <div class="min-h-screen">
     <!-- Header -->
-    <header class="shadow">
+    <header>
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="flex items-center justify-between">
           <div>
@@ -179,11 +153,11 @@ function cancelGeneration() {
     <!-- Main Content -->
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- API Status -->
-      <ApiStatus />
+      <!-- <ApiStatus /> -->
 
       <!-- Loading Overlay -->
       <div v-if="isGenerating" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="bg-white rounded-lg max-w-md w-full mx-4">
           <LoadingSpinner
             :state="generationState"
             :show-details="true"
@@ -203,7 +177,7 @@ function cancelGeneration() {
             </h2>
           </template>
 
-          <GenerationForm @form-change="onFormChange" />
+          <GenerationForm v-model="formData" />
         </UCard>
 
         <!-- File Upload -->
@@ -214,7 +188,7 @@ function cancelGeneration() {
             </h2>
           </template>
 
-          <FileUpload @files-change="onFilesChange" />
+          <FileUpload v-model="fileUploadData" />
         </UCard>
 
         <!-- Generation Button -->
@@ -236,7 +210,7 @@ function cancelGeneration() {
         </div>
 
         <!-- Generation Summary -->
-        <div v-if="formData.title || fileUploadData.files.length > 0" class="rounded-lg p-4">
+        <!-- <div v-if="formData.title || fileUploadData.files.length > 0" class="rounded-lg p-4">
           <h3 class="text-sm font-medium mb-2">
             Generation Summary
           </h3>
@@ -257,7 +231,7 @@ function cancelGeneration() {
               <strong>Total Size:</strong> {{ formatFileSize(getTotalSize()) }}
             </p>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <!-- Error Display -->

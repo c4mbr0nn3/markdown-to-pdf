@@ -92,9 +92,8 @@ markdown-pdf-api/
 - **Content-Type**: `multipart/form-data`
 - **Parameters**:
   - `file` (required): ZIP file containing markdown and images
-  - `title` (required): Document title for cover page (default: "Document")
+  - `title` (required): Document title for cover page
   - `include_toc` (optional): Include table of contents (default: true)
-  - `page_format` (optional): Page format ("A4") (default: "A4")
 
 **Response**:
 - **Success (200)**: PDF file as binary stream
@@ -133,8 +132,7 @@ markdown-pdf-api/
     "version": "1.0.0",
     "supported_formats": ["zip"],
     "max_file_size": "50MB",
-    "supported_images": ["png", "jpg", "jpeg"],
-    "page_formats": ["A4"]
+    "supported_images": ["png", "jpg", "jpeg"]
 }
 ```
 
@@ -275,7 +273,6 @@ UPLOAD_TIMEOUT=300  # 5 minutes
 
 # PDF Generation
 DEFAULT_TEMPLATE=default
-DEFAULT_PAGE_FORMAT=A4
 COMPANY_NAME="Your Company Name"
 COMPANY_LOGO_URL="/templates/assets/logo.png"
 
@@ -305,7 +302,6 @@ class Settings(BaseSettings):
     upload_timeout: int = 300
     
     # PDF Generation Settings
-    default_page_format: str = "A4"
     company_name: str = "Your Company Name"
     
     # Security Settings

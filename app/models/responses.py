@@ -35,7 +35,6 @@ class ApiInfoResponse(BaseModel):
     supported_formats: List[str] = Field(default=["zip"], description="Supported file formats")
     max_file_size: str = Field(default="50MB", description="Maximum file size")
     supported_images: List[str] = Field(default=["png", "jpg", "jpeg"], description="Supported image formats")
-    page_formats: List[str] = Field(default=["A4"], description="Supported page formats")
     
     class Config:
         json_schema_extra = {
@@ -44,8 +43,7 @@ class ApiInfoResponse(BaseModel):
                 "version": "1.0.0",
                 "supported_formats": ["zip"],
                 "max_file_size": "50MB",
-                "supported_images": ["png", "jpg", "jpeg"],
-                "page_formats": ["A4"]
+                "supported_images": ["png", "jpg", "jpeg"]
             }
         }
 

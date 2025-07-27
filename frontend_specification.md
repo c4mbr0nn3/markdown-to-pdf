@@ -114,11 +114,9 @@ client/
       <!-- API Status -->
       <ApiStatus />
 
-      <!-- Instructions Button -->
+      <!-- Instructions Panel (with integrated button) -->
       <div class="text-center mb-6">
-        <UButton variant="outline" @click="showInstructions = true">
-          How to Use
-        </UButton>
+        <InstructionsPanel />
       </div>
 
       <!-- Main Form -->
@@ -131,9 +129,6 @@ client/
           </UButton>
         </div>
       </UCard>
-
-      <!-- Instructions Panel -->
-      <InstructionsPanel v-model="showInstructions" />
     </UContainer>
   </div>
 </template>
@@ -226,23 +221,36 @@ client/
 
 ```vue
 <template>
-  <USlideover v-model="isOpen" title="How to Use">
-    <div class="p-6">
-      <div v-for="section in instructions.sections" :key="section.id" class="mb-6">
-        <h3 class="text-lg font-semibold mb-3">{{ section.title }}</h3>
-        <div v-if="section.type === 'steps'">
-          <ol class="list-decimal list-inside space-y-2">
-            <li v-for="step in section.content" :key="step">{{ step }}</li>
-          </ol>
+  <USlideover
+    v-model="isOpen"
+    title="How to Use"
+    description="Step-by-step guide to convert your markdown documents to PDF"
+  >
+    <UButton 
+      label="How to Use" 
+      color="neutral" 
+      variant="outline" 
+      @click="isOpen = true"
+    />
+
+    <template #body>
+      <div class="p-6">
+        <div v-for="section in instructions.sections" :key="section.id" class="mb-6">
+          <h3 class="text-lg font-semibold mb-3">{{ section.title }}</h3>
+          <div v-if="section.type === 'steps'">
+            <ol class="list-decimal list-inside space-y-2">
+              <li v-for="step in section.content" :key="step">{{ step }}</li>
+            </ol>
+          </div>
+          <div v-else-if="section.type === 'list'">
+            <ul class="list-disc list-inside space-y-1">
+              <li v-for="item in section.content" :key="item">{{ item }}</li>
+            </ul>
+          </div>
+          <p v-else class="text-gray-600">{{ section.content }}</p>
         </div>
-        <div v-else-if="section.type === 'list'">
-          <ul class="list-disc list-inside space-y-1">
-            <li v-for="item in section.content" :key="item">{{ item }}</li>
-          </ul>
-        </div>
-        <p v-else class="text-gray-600">{{ section.content }}</p>
       </div>
-    </div>
+    </template>
   </USlideover>
 </template>
 ```
@@ -453,20 +461,13 @@ const useZipCreation = () => {
 
 ```javascript
 // In InstructionsPanel.vue
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import instructionsData from '@/data/instructions.json'
 
 export default {
-  props: {
-    modelValue: Boolean
-  },
-  emits: ['update:modelValue'],
-  setup(props, { emit }) {
+  setup() {
     const instructions = ref(instructionsData)
-    const isOpen = computed({
-      get: () => props.modelValue,
-      set: (value) => emit('update:modelValue', value)
-    })
+    const isOpen = ref(false)
 
     return {
       instructions,

@@ -13,7 +13,7 @@ A FastAPI-based web API that converts markdown documents with embedded images to
 - **Input Validation**: Comprehensive file type and size validation
 - **Error Handling**: Detailed error responses with proper HTTP status codes
 - **Logging**: Structured logging with Loguru
-- **Docker Support**: Containerized deployment with Docker and docker-compose
+- **Docker Support**: Containerized deployment with Docker
 
 ## Technology Stack
 
@@ -37,10 +37,11 @@ git clone <repository-url>
 cd markdown-pdf-api
 ```
 
-2. Start the application:
+2. Build and run the Docker container:
 
 ```bash
-docker-compose up --build
+docker build -t markdown-pdf-api .
+docker run -p 8000:8000 markdown-pdf-api
 ```
 
 3. Access the API:
@@ -284,7 +285,6 @@ markdown-pdf-api/
 ├── logs/                       # Log files
 ├── pyproject.toml              # Poetry configuration
 ├── Dockerfile                  # Docker configuration
-├── docker-compose.yml          # Docker Compose configuration
 └── README.md                   # Project documentation
 ```
 
@@ -300,12 +300,24 @@ chmod +x scripts/deploy.sh
 ./scripts/deploy.sh
 ```
 
-### Docker Compose with Nginx
+### Docker Production Deployment
 
-For production with reverse proxy:
+For production deployment with Docker:
 
 ```bash
-docker-compose --profile production up -d
+# Build the image
+docker build -t markdown-pdf-api .
+
+# Run with production settings
+docker run -d \
+  --name markdown-pdf-api \
+  --restart unless-stopped \
+  -p 8000:8000 \
+  -v $(pwd)/logs:/app/logs \
+  -e API_ENV=production \
+  -e DEBUG=false \
+  -e LOG_LEVEL=INFO \
+  markdown-pdf-api
 ```
 
 ## Error Handling

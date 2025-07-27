@@ -1,0 +1,66 @@
+{
+  "title": "How to Use the Markdown to PDF Converter",
+  "sections": [
+    {
+      "id": "getting-started",
+      "title": "Getting Started",
+      "type": "steps",
+      "content": [
+        "Enter a title for your document in the Title field (required)",
+        "Choose whether to include a Table of Contents (enabled by default)",
+        "Upload your files using the drag-and-drop area or click to browse",
+        "Click 'Generate PDF' once all requirements are met"
+      ]
+    },
+    {
+      "id": "file-requirements",
+      "title": "File Requirements",
+      "type": "list",
+      "content": [
+        "Exactly one markdown file (.md or .markdown) - required",
+        "Multiple image files (.png, .jpg, .jpeg) - optional",
+        "Total file size must not exceed 50MB",
+        "Images should be referenced in markdown using relative paths"
+      ]
+    },
+    {
+      "id": "markdown-tips",
+      "title": "Markdown Tips",
+      "type": "list",
+      "content": [
+        "Use standard CommonMark syntax for best results",
+        "Reference images like: ![Alt text](images/chart.png)",
+        "Use headers (# ## ###) for automatic table of contents",
+        "Tables, code blocks, and lists are fully supported"
+      ]
+    },
+    {
+      "id": "zip-structure",
+      "title": "File Organization",
+      "type": "text",
+      "content": "When you upload files, they will be automatically organized into a ZIP structure with your markdown file at the root and images in an 'images' folder. Make sure your markdown references images using paths like 'images/filename.png'."
+    },
+    {
+      "id": "troubleshooting",
+      "title": "Troubleshooting",
+      "type": "list",
+      "content": [
+        "Generate button disabled: Check that you have exactly one markdown file and a title",
+        "Images not showing: Verify image paths in markdown match uploaded filenames",
+        "File too large: Reduce image sizes or remove unnecessary files",
+        "API error: Check your internet connection and try again"
+      ]
+    },
+    {
+      "id": "tips",
+      "title": "Pro Tips",
+      "type": "list",
+      "content": [
+        "Keep image file names simple (no spaces or special characters)",
+        "Use descriptive titles for better PDF organization",
+        "Table of contents is generated from your markdown headers",
+        "The PDF will include professional company branding automatically"
+      ]
+    }
+  ]
+}

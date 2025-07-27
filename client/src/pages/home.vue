@@ -153,19 +153,22 @@ function cancelGeneration() {
     <!-- Main Content -->
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- API Status -->
-      <!-- <ApiStatus /> -->
+      <ApiStatus />
 
       <!-- Loading Overlay -->
-      <div v-if="isGenerating" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white rounded-lg max-w-md w-full mx-4">
-          <LoadingSpinner
-            :state="generationState"
-            :show-details="true"
-            :show-cancel="canCancel"
-            @cancel="cancelGeneration"
-          />
-        </div>
-      </div>
+      <UModal v-model:open="isGenerating">
+        <template #content>
+          <UCard>
+            <LoadingSpinner
+              :state="generationState"
+              :show-details="true"
+              :show-cancel="canCancel"
+              class="mx-auto"
+              @cancel="cancelGeneration"
+            />
+          </UCard>
+        </template>
+      </UModal>
 
       <!-- Main Form -->
       <div v-if="!isGenerating" class="space-y-8">
@@ -197,41 +200,12 @@ function cancelGeneration() {
             :disabled="!canGenerate"
             :loading="isGenerating"
             size="xl"
-            color="blue"
+            color="info"
+            label="Generate PDF"
+            icon="i-lucide-cloud-cog"
             @click="generatePdf"
-          >
-            <template #leading>
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </template>
-            Generate PDF
-          </UButton>
+          />
         </div>
-
-        <!-- Generation Summary -->
-        <!-- <div v-if="formData.title || fileUploadData.files.length > 0" class="rounded-lg p-4">
-          <h3 class="text-sm font-medium mb-2">
-            Generation Summary
-          </h3>
-          <div class="text-sm space-y-1">
-            <p v-if="formData.title">
-              <strong>Title:</strong> {{ formData.title }}
-            </p>
-            <p>
-              <strong>Table of Contents:</strong> {{ formData.includeToc ? 'Enabled' : 'Disabled' }}
-            </p>
-            <p v-if="fileUploadData.markdownFiles.length > 0">
-              <strong>Markdown File:</strong> {{ fileUploadData.markdownFiles[0].file.name }}
-            </p>
-            <p v-if="fileUploadData.imageFiles.length > 0">
-              <strong>Images:</strong> {{ fileUploadData.imageFiles.length }} file(s)
-            </p>
-            <p>
-              <strong>Total Size:</strong> {{ formatFileSize(getTotalSize()) }}
-            </p>
-          </div>
-        </div> -->
       </div>
 
       <!-- Error Display -->
@@ -255,7 +229,7 @@ function cancelGeneration() {
     <footer class="mt-12 border-t border-gray-600 ">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="text-center text-sm text-gray-600">
-          <p>Markdown to PDF Converter • Professional document generation</p>
+          <p>Markdown to PDF Converter - Professional document generation</p>
         </div>
       </div>
     </footer>

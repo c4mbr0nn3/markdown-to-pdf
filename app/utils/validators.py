@@ -106,33 +106,6 @@ def validate_title(title: str) -> str:
     return sanitized_title
 
 
-def validate_page_format(page_format: str) -> str:
-    """
-    Validate page format.
-    
-    Args:
-        page_format: Page format string
-        
-    Returns:
-        Validated page format
-        
-    Raises:
-        ValidationError: If page format is invalid
-    """
-    supported_formats = ["A4", "Letter", "Legal", "A3", "A5"]
-    
-    if page_format not in supported_formats:
-        raise ValidationError(
-            f"Unsupported page format: {page_format}",
-            "INVALID_PAGE_FORMAT",
-            {
-                "provided_format": page_format,
-                "supported_formats": supported_formats
-            }
-        )
-    
-    return page_format
-
 
 def validate_boolean_parameter(value: Any, param_name: str) -> bool:
     """

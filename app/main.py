@@ -14,7 +14,6 @@ from app.services.pdf_generator import PDFGenerator
 from app.utils.validators import (
     validate_upload_file, 
     validate_title, 
-    validate_page_format, 
     validate_boolean_parameter,
     ValidationError,
     create_error_response,
@@ -164,17 +163,15 @@ async def general_exception_handler(request: Request, exc: Exception):
 @app.post("/api/v1/convert")
 async def convert_markdown_to_pdf(
     file: UploadFile = File(..., description="ZIP file containing markdown and images"),
-    title: str = Form(default="Document", description="Document title for cover page"),
-    include_toc: str = Form(default="true", description="Include table of contents"),
-    page_format: str = Form(default="A4", description="Page format")
+    title: str = Form(..., description="Document title for cover page"),
+    include_toc: str = Form(default="true", description="Include table of contents")
 ):
     """
     Convert a ZIP file containing markdown and images to a branded PDF document.
     
     - **file**: ZIP file containing markdown files and images
-    - **title**: Document title for the cover page (default: "Document")
+    - **title**: Document title for the cover page (required)
     - **include_toc**: Include table of contents (default: true)
-    - **page_format**: Page format (default: "A4")
     
     Returns a PDF file as binary stream.
     """
@@ -183,8 +180,7 @@ async def convert_markdown_to_pdf(
         extra={
             "filename": file.filename,
             "title": title,
-            "include_toc": include_toc,
-            "page_format": page_format
+            "include_toc": include_toc
         }
     )
     
@@ -192,7 +188,6 @@ async def convert_markdown_to_pdf(
         # Validate inputs
         file_content = await validate_upload_file(file)
         validated_title = validate_title(title)
-        validated_page_format = validate_page_format(page_format)
         validated_include_toc = validate_boolean_parameter(include_toc, "include_toc")
         
         # Process ZIP file
@@ -207,7 +202,7 @@ async def convert_markdown_to_pdf(
                 image_mapping=image_mapping,
                 title=validated_title,
                 include_toc=validated_include_toc,
-                page_format=validated_page_format
+                page_format="A4"
             )
             
             # Create safe filename for download

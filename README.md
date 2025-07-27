@@ -81,9 +81,8 @@ POST /api/v1/convert
 **Parameters:**
 
 - `file` (required): ZIP file containing markdown and images
-- `title` (optional): Document title for cover page (default: "Document")
+- `title` (required): Document title for cover page
 - `include_toc` (optional): Include table of contents (default: true)
-- `page_format` (optional): Page format (default: "A4")
 
 **Response:** PDF file as binary stream
 

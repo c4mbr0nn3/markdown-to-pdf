@@ -66,7 +66,8 @@ client/
 │   │   ├── FileUpload.vue      # Drag-and-drop file upload
 │   │   ├── GenerationForm.vue  # Title and TOC form
 │   │   ├── ApiStatus.vue       # API status display
-│   │   └── LoadingSpinner.vue  # Loading indicator
+│   │   ├── LoadingSpinner.vue  # Loading indicator
+│   │   └── InstructionsPanel.vue # Instructions slideover
 │   ├── composables/            # Vue composables
 │   │   ├── useApi.js           # API client composable
 │   │   ├── useFileUpload.js    # File upload logic
@@ -74,6 +75,8 @@ client/
 │   ├── utils/                  # Utility functions
 │   │   ├── validation.js       # Input validation
 │   │   └── constants.js        # Application constants
+│   ├── data/                   # Configuration and data files
+│   │   └── instructions.json   # User instructions content
 │   ├── App.vue                 # Root component
 │   └── main.js                 # Application entry point
 ├── index.html                  # HTML template
@@ -111,6 +114,13 @@ client/
       <!-- API Status -->
       <ApiStatus />
 
+      <!-- Instructions Button -->
+      <div class="text-center mb-6">
+        <UButton variant="outline" @click="showInstructions = true">
+          How to Use
+        </UButton>
+      </div>
+
       <!-- Main Form -->
       <UCard class="max-w-4xl mx-auto">
         <GenerationForm />
@@ -121,6 +131,9 @@ client/
           </UButton>
         </div>
       </UCard>
+
+      <!-- Instructions Panel -->
+      <InstructionsPanel v-model="showInstructions" />
     </UContainer>
   </div>
 </template>
@@ -195,6 +208,44 @@ client/
 - Animated spinner with Nuxt UI styling
 - Progress messages
 - Cancellation option (if needed)
+
+### 4.6 InstructionsPanel.vue
+
+**Purpose**: Instructions slideover panel using USlideover component
+
+**Features**:
+
+- USlideover component from Nuxt UI
+- Loads instructions from external JSON file
+- Step-by-step usage guide
+- File format requirements
+- Examples and tips
+- Close button and overlay dismiss
+
+**Structure**:
+
+```vue
+<template>
+  <USlideover v-model="isOpen" title="How to Use">
+    <div class="p-6">
+      <div v-for="section in instructions.sections" :key="section.id" class="mb-6">
+        <h3 class="text-lg font-semibold mb-3">{{ section.title }}</h3>
+        <div v-if="section.type === 'steps'">
+          <ol class="list-decimal list-inside space-y-2">
+            <li v-for="step in section.content" :key="step">{{ step }}</li>
+          </ol>
+        </div>
+        <div v-else-if="section.type === 'list'">
+          <ul class="list-disc list-inside space-y-1">
+            <li v-for="item in section.content" :key="item">{{ item }}</li>
+          </ul>
+        </div>
+        <p v-else class="text-gray-600">{{ section.content }}</p>
+      </div>
+    </div>
+  </USlideover>
+</template>
+```
 
 ## 5. Composables Specifications
 
@@ -321,9 +372,113 @@ const useZipCreation = () => {
 }
 ```
 
-## 6. Data Structures (JavaScript Objects)
+## 6. Instructions Configuration
 
-### 6.1 API Response Formats
+### 6.1 instructions.json
+
+**Purpose**: External configuration file containing user instructions content
+
+**Structure**:
+
+```json
+{
+  "title": "How to Use the Markdown to PDF Converter",
+  "sections": [
+    {
+      "id": "getting-started",
+      "title": "Getting Started",
+      "type": "steps",
+      "content": [
+        "Enter a title for your document in the Title field (required)",
+        "Choose whether to include a Table of Contents (enabled by default)",
+        "Upload your files using the drag-and-drop area or click to browse",
+        "Click 'Generate PDF' once all requirements are met"
+      ]
+    },
+    {
+      "id": "file-requirements",
+      "title": "File Requirements",
+      "type": "list",
+      "content": [
+        "Exactly one markdown file (.md or .markdown) - required",
+        "Multiple image files (.png, .jpg, .jpeg) - optional",
+        "Total file size must not exceed 50MB",
+        "Images should be referenced in markdown using relative paths"
+      ]
+    },
+    {
+      "id": "markdown-tips",
+      "title": "Markdown Tips",
+      "type": "list",
+      "content": [
+        "Use standard CommonMark syntax for best results",
+        "Reference images like: ![Alt text](images/chart.png)",
+        "Use headers (# ## ###) for automatic table of contents",
+        "Tables, code blocks, and lists are fully supported"
+      ]
+    },
+    {
+      "id": "zip-structure",
+      "title": "File Organization",
+      "type": "text",
+      "content": "When you upload files, they will be automatically organized into a ZIP structure with your markdown file at the root and images in an 'images' folder. Make sure your markdown references images using paths like 'images/filename.png'."
+    },
+    {
+      "id": "troubleshooting",
+      "title": "Troubleshooting",
+      "type": "list",
+      "content": [
+        "Generate button disabled: Check that you have exactly one markdown file and a title",
+        "Images not showing: Verify image paths in markdown match uploaded filenames",
+        "File too large: Reduce image sizes or remove unnecessary files",
+        "API error: Check your internet connection and try again"
+      ]
+    },
+    {
+      "id": "tips",
+      "title": "Pro Tips",
+      "type": "list",
+      "content": [
+        "Keep image file names simple (no spaces or special characters)",
+        "Use descriptive titles for better PDF organization",
+        "Table of contents is generated from your markdown headers",
+        "The PDF will include professional company branding automatically"
+      ]
+    }
+  ]
+}
+```
+
+### 6.2 Loading Instructions in Component
+
+```javascript
+// In InstructionsPanel.vue
+import { ref, onMounted } from 'vue'
+import instructionsData from '@/data/instructions.json'
+
+export default {
+  props: {
+    modelValue: Boolean
+  },
+  emits: ['update:modelValue'],
+  setup(props, { emit }) {
+    const instructions = ref(instructionsData)
+    const isOpen = computed({
+      get: () => props.modelValue,
+      set: (value) => emit('update:modelValue', value)
+    })
+
+    return {
+      instructions,
+      isOpen
+    }
+  }
+}
+```
+
+## 7. Data Structures (JavaScript Objects)
+
+### 7.1 API Response Formats
 
 Expected response structures from the API:
 
@@ -353,7 +508,7 @@ Expected response structures from the API:
 }
 ```
 
-### 6.2 Application Data Structures
+### 7.2 Application Data Structures
 
 ```javascript
 // Uploaded File Object
@@ -380,9 +535,9 @@ Expected response structures from the API:
 }
 ```
 
-## 7. Configuration Files
+## 8. Configuration Files
 
-### 7.1 vite.config.js
+### 8.1 vite.config.js
 
 ```javascript
 import { defineConfig } from 'vite'
@@ -407,7 +562,7 @@ export default defineConfig({
 })
 ```
 
-### 7.2 eslint.config.js
+### 8.2 eslint.config.js
 
 ```javascript
 import antfu from '@antfu/eslint-config'
@@ -423,9 +578,9 @@ export default antfu({
 })
 ```
 
-## 8. User Interface Design
+## 9. User Interface Design
 
-### 8.1 Layout Structure
+### 9.1 Layout Structure
 
 - **Header**: Application title and description
 - **API Status Bar**: Real-time status indicators
@@ -434,7 +589,7 @@ export default antfu({
 - **Upload Section**: Drag-and-drop zone with file preview
 - **Action Section**: Generate button with loading state
 
-### 8.2 Nuxt UI Components Used
+### 9.2 Nuxt UI Components Used
 
 - `UContainer`: Page layout container
 - `UCard`: Main form container
@@ -445,8 +600,9 @@ export default antfu({
 - `UAlert`: Error and success messages
 - `UProgress`: Loading progress bar
 - `UTable`: File list display
+- `USlideover`: Instructions panel
 
-### 8.3 Color Scheme
+### 9.3 Color Scheme
 
 - Primary: Nuxt UI default blue
 - Success: Green for healthy status
@@ -454,9 +610,9 @@ export default antfu({
 - Error: Red for errors and failures
 - Background: Light gray for page background
 
-## 9. File Upload Workflow
+## 10. File Upload Workflow
 
-### 9.1 Upload Process
+### 10.1 Upload Process
 
 1. User drags files or clicks to select
 2. Client validates file types and sizes
@@ -465,7 +621,7 @@ export default antfu({
 5. Markdown files and images are organized
 6. ZIP creation happens on form submission
 
-### 9.2 Validation Rules
+### 10.2 Validation Rules
 
 - **File Types**: Only .md, .markdown, .png, .jpg, .jpeg
 - **File Size**: Total size must not exceed 50MB
@@ -473,7 +629,7 @@ export default antfu({
 - **File Names**: Safe filename validation
 - **Form Validation**: Generate button disabled until all requirements met
 
-### 9.3 ZIP Structure Creation
+### 10.3 ZIP Structure Creation
 
 ```text
 generated.zip
@@ -484,32 +640,32 @@ generated.zip
     └── chart.jpeg
 ```
 
-## 10. Error Handling
+## 11. Error Handling
 
-### 10.1 Client-Side Errors
+### 11.1 Client-Side Errors
 
 - File validation errors
 - Network connectivity issues
 - ZIP creation failures
 - Form validation errors
 
-### 10.2 API Errors
+### 11.2 API Errors
 
 - HTTP status code handling
 - API error response parsing
 - User-friendly error messages
 - Retry mechanisms for transient errors
 
-### 10.3 Error Display
+### 11.3 Error Display
 
 - Toast notifications for quick feedback
 - Inline validation messages
 - Error state in upload components
 - Detailed error information in development
 
-## 11. Docker Configuration
+## 12. Docker Configuration
 
-### 11.1 Frontend Dockerfile
+### 12.1 Frontend Dockerfile
 
 ```dockerfile
 # Build stage
@@ -528,7 +684,7 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-### 11.2 nginx.conf
+### 12.2 nginx.conf
 
 ```nginx
 events {
@@ -569,9 +725,9 @@ http {
 }
 ```
 
-## 12. Docker Compose Configuration
+## 13. Docker Compose Configuration
 
-### 12.1 docker-compose.yml
+### 13.1 docker-compose.yml
 
 ```yaml
 version: '3.8'
@@ -615,9 +771,9 @@ networks:
     name: markdown-pdf-network
 ```
 
-## 13. Environment Variables
+## 14. Environment Variables
 
-### 13.1 Development (.env.development)
+### 14.1 Development (.env.development)
 
 ```env
 VITE_API_URL=http://localhost:8000
@@ -625,7 +781,7 @@ VITE_APP_TITLE=Markdown to PDF Converter
 VITE_MAX_FILE_SIZE=52428800
 ```
 
-### 13.2 Production (.env.production)
+### 14.2 Production (.env.production)
 
 ```env
 VITE_API_URL=http://api:8000
@@ -633,9 +789,9 @@ VITE_APP_TITLE=Markdown to PDF Converter
 VITE_MAX_FILE_SIZE=52428800
 ```
 
-## 14. Development Workflow
+## 15. Development Workflow
 
-### 14.1 Setup Commands
+### 15.1 Setup Commands
 
 ```bash
 # Navigate to client directory
@@ -654,7 +810,7 @@ npm run build
 npm run lint
 ```
 
-### 14.2 Package.json Scripts
+### 15.2 Package.json Scripts
 
 ```json
 {
@@ -667,9 +823,9 @@ npm run lint
 }
 ```
 
-## 15. Performance Considerations
+## 16. Performance Considerations
 
-### 15.1 Optimization Strategies
+### 16.1 Optimization Strategies
 
 - Lazy loading for components
 - Image preview optimization
@@ -677,32 +833,32 @@ npm run lint
 - Efficient ZIP file creation
 - Minimal bundle size with tree shaking
 
-### 15.2 File Size Limits
+### 16.2 File Size Limits
 
 - Client-side validation before upload
 - Progressive file loading for large uploads
 - Memory-efficient ZIP creation
 - Cleanup of temporary objects
 
-## 16. Security Considerations
+## 17. Security Considerations
 
-### 16.1 Input Validation
+### 17.1 Input Validation
 
 - File type validation using MIME types
 - Filename sanitization
 - File size restrictions
 - Content validation for markdown files
 
-### 16.2 API Communication
+### 17.2 API Communication
 
 - CORS handling
 - Request/response validation
 - Error message sanitization
 - No sensitive data in client-side code
 
-## 17. Deployment Instructions
+## 18. Deployment Instructions
 
-### 17.1 Development Deployment
+### 18.1 Development Deployment
 
 ```bash
 # Start both services
@@ -714,7 +870,7 @@ docker-compose up --build
 # API Docs: http://localhost:8000/docs
 ```
 
-### 17.2 Production Deployment
+### 18.2 Production Deployment
 
 ```bash
 # Build and start in production mode
@@ -727,9 +883,9 @@ docker-compose logs -f
 docker-compose down
 ```
 
-## 18. Future Enhancements
+## 19. Future Enhancements
 
-### 18.1 Potential Features
+### 19.1 Potential Features
 
 - Multiple markdown file support with merge options
 - Real-time markdown preview
@@ -738,7 +894,7 @@ docker-compose down
 - Download history and management
 - User preferences and settings
 
-### 18.2 Technical Improvements
+### 19.2 Technical Improvements
 
 - Progressive Web App (PWA) capabilities
 - Offline functionality

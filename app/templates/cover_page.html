@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ document_title }}</title>
+</head>
+<body>
+    <div class="cover-page">
+        <div class="company-logo">
+            <img src="{{ logo_path }}" alt="{{ company_name }} Logo">
+        </div>
+        <h1 class="document-title">{{ document_title }}</h1>
+        {% if document_subtitle %}
+        <p class="document-subtitle">{{ document_subtitle }}</p>
+        {% endif %}
+        <div class="document-info">
+            <p>Generated on {{ generation_date }}</p>
+            {% if company_name %}
+            <p>{{ company_name }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

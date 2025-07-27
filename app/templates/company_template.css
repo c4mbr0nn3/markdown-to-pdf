@@ -1,0 +1,371 @@
+/* Company branding colors */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --accent-color: #e74c3c;
+    --text-color: #333333;
+    --background-color: #ffffff;
+    --light-gray: #f8f9fa;
+    --border-color: #dee2e6;
+}
+
+/* Page setup */
+@page {
+    size: A4;
+    margin: 2cm 2cm 3cm 2cm;
+    
+    @top-center {
+        content: "{{ company_name }} - {{ document_title }}";
+        font-family: 'Arial', sans-serif;
+        font-size: 10pt;
+        color: var(--primary-color);
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 5pt;
+        margin-bottom: 1cm;
+    }
+    
+    @bottom-center {
+        content: "Page " counter(page) " of " counter(pages);
+        font-family: 'Arial', sans-serif;
+        font-size: 9pt;
+        color: var(--text-color);
+        border-top: 1px solid var(--border-color);
+        padding-top: 5pt;
+        margin-top: 1cm;
+    }
+}
+
+/* Base styling */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    font-size: 11pt;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+}
+
+/* Cover page styling */
+.cover-page {
+    page-break-after: always;
+    text-align: center;
+    padding: 4cm 2cm;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.company-logo {
+    margin-bottom: 3cm;
+}
+
+.company-logo img {
+    max-width: 300px;
+    max-height: 150px;
+    filter: brightness(0) invert(1);
+}
+
+.document-title {
+    font-size: 36pt;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.document-subtitle {
+    font-size: 18pt;
+    margin-top: 1cm;
+    font-weight: normal;
+    opacity: 0.9;
+}
+
+/* Typography */
+h1 {
+    font-size: 24pt;
+    color: var(--primary-color);
+    border-bottom: 3px solid var(--secondary-color);
+    padding-bottom: 10pt;
+    margin-top: 30pt;
+    margin-bottom: 20pt;
+    page-break-after: avoid;
+}
+
+h1:first-child {
+    margin-top: 0;
+}
+
+h2 {
+    font-size: 18pt;
+    color: var(--primary-color);
+    margin-top: 25pt;
+    margin-bottom: 15pt;
+    page-break-after: avoid;
+}
+
+h3 {
+    font-size: 14pt;
+    color: var(--secondary-color);
+    margin-top: 20pt;
+    margin-bottom: 12pt;
+    page-break-after: avoid;
+}
+
+h4, h5, h6 {
+    font-size: 12pt;
+    color: var(--text-color);
+    margin-top: 15pt;
+    margin-bottom: 10pt;
+    page-break-after: avoid;
+}
+
+p {
+    margin-bottom: 12pt;
+    text-align: justify;
+    orphans: 2;
+    widows: 2;
+}
+
+/* Lists */
+ul, ol {
+    margin-bottom: 12pt;
+    padding-left: 20pt;
+}
+
+li {
+    margin-bottom: 6pt;
+}
+
+/* Links */
+a {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Code blocks */
+pre {
+    background-color: var(--light-gray);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--secondary-color);
+    padding: 15pt;
+    margin: 15pt 0;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    line-height: 1.4;
+    overflow-x: auto;
+    page-break-inside: avoid;
+}
+
+code {
+    background-color: var(--light-gray);
+    padding: 2pt 4pt;
+    font-family: 'Courier New', monospace;
+    font-size: 9pt;
+    border-radius: 2pt;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15pt 0;
+    page-break-inside: avoid;
+}
+
+th {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10pt;
+    text-align: left;
+    font-weight: bold;
+}
+
+td {
+    padding: 8pt 10pt;
+    border-bottom: 1px solid var(--border-color);
+}
+
+tr:nth-child(even) {
+    background-color: var(--light-gray);
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 15pt auto;
+    page-break-inside: avoid;
+}
+
+.image-caption {
+    text-align: center;
+    font-style: italic;
+    font-size: 9pt;
+    color: var(--text-color);
+    margin-top: 5pt;
+    margin-bottom: 15pt;
+}
+
+/* Blockquotes */
+blockquote {
+    border-left: 4px solid var(--accent-color);
+    padding-left: 15pt;
+    margin: 15pt 0;
+    font-style: italic;
+    background-color: var(--light-gray);
+    padding: 10pt 15pt;
+}
+
+/* Page break control */
+.page-break {
+    page-break-before: always;
+}
+
+.page-break-after {
+    page-break-after: always;
+}
+
+.keep-together {
+    page-break-inside: avoid;
+}
+
+.avoid-break-before {
+    page-break-before: avoid;
+}
+
+.avoid-break-after {
+    page-break-after: avoid;
+}
+
+/* Page break behavior for headings */
+h1 {
+    page-break-before: always;
+}
+
+h1:first-child {
+    page-break-before: avoid;
+}
+
+h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+}
+
+/* Avoid breaking these elements */
+table, img, pre, blockquote {
+    page-break-inside: avoid;
+}
+
+/* Table of Contents */
+.toc {
+    page-break-after: always;
+    margin-bottom: 2cm;
+}
+
+.toc h1 {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--secondary-color);
+    page-break-before: avoid;
+}
+
+.toc ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.toc li {
+    margin-bottom: 8pt;
+    padding-left: 0;
+}
+
+.toc a {
+    color: var(--text-color);
+    text-decoration: none;
+    display: flex;
+    justify-content: space-between;
+}
+
+.toc a:hover {
+    color: var(--secondary-color);
+}
+
+.toc .toc-level-1 {
+    font-weight: bold;
+    font-size: 12pt;
+    margin-top: 10pt;
+}
+
+.toc .toc-level-2 {
+    padding-left: 15pt;
+    font-size: 11pt;
+}
+
+.toc .toc-level-3 {
+    padding-left: 30pt;
+    font-size: 10pt;
+}
+
+/* Utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.font-bold {
+    font-weight: bold;
+}
+
+.font-italic {
+    font-style: italic;
+}
+
+.text-primary {
+    color: var(--primary-color);
+}
+
+.text-secondary {
+    color: var(--secondary-color);
+}
+
+.text-accent {
+    color: var(--accent-color);
+}
+
+/* Print optimizations */
+@media print {
+    body {
+        font-size: 10pt;
+        line-height: 1.5;
+    }
+    
+    .cover-page {
+        background: var(--primary-color) !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    th {
+        background-color: var(--primary-color) !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+}

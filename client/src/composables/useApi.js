@@ -7,7 +7,8 @@ export function useApi() {
   const health = async () => {
     try {
       return await client.get('health').json()
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Health check failed:', error)
       throw error
     }
@@ -16,7 +17,8 @@ export function useApi() {
   const info = async () => {
     try {
       return await client.get('api/v1/info').json()
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Failed to get API info:', error)
       throw error
     }
@@ -25,7 +27,8 @@ export function useApi() {
   const status = async () => {
     try {
       return await client.get('api/v1/status').json()
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Failed to get API status:', error)
       throw error
     }
@@ -33,11 +36,12 @@ export function useApi() {
 
   const convert = async (formData) => {
     try {
-      return await client.post('api/v1/convert', { 
+      return await client.post('api/v1/convert', {
         body: formData,
-        timeout: 120000 // 2 minutes timeout for PDF generation
+        timeout: 120000, // 2 minutes timeout for PDF generation
       }).blob()
-    } catch (error) {
+    }
+    catch (error) {
       console.error('PDF conversion failed:', error)
       throw error
     }
@@ -47,6 +51,6 @@ export function useApi() {
     health,
     info,
     status,
-    convert
+    convert,
   }
 }

@@ -1,4 +1,4 @@
-import { ref, computed, readonly } from 'vue'
+import { computed, readonly, ref } from 'vue'
 
 export function useFileUpload() {
   const files = ref([])
@@ -9,32 +9,33 @@ export function useFileUpload() {
   const IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg']
   const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 
-  const markdownFiles = computed(() => 
-    files.value.filter(f => f.type === 'markdown')
+  const markdownFiles = computed(() =>
+    files.value.filter(f => f.type === 'markdown'),
   )
 
-  const imageFiles = computed(() => 
-    files.value.filter(f => f.type === 'image')
+  const imageFiles = computed(() =>
+    files.value.filter(f => f.type === 'image'),
   )
 
-  const isValidFileCount = computed(() => 
-    markdownFiles.value.length === 1
+  const isValidFileCount = computed(() =>
+    markdownFiles.value.length === 1,
   )
 
-  const totalSize = computed(() => 
-    files.value.reduce((total, file) => total + file.file.size, 0)
+  const totalSize = computed(() =>
+    files.value.reduce((total, file) => total + file.file.size, 0),
   )
 
-  const isValidTotalSize = computed(() => 
-    totalSize.value <= MAX_FILE_SIZE
+  const isValidTotalSize = computed(() =>
+    totalSize.value <= MAX_FILE_SIZE,
   )
 
   const getFileType = (file) => {
-    const extension = '.' + file.name.split('.').pop().toLowerCase()
-    
+    const extension = `.${file.name.split('.').pop().toLowerCase()}`
+
     if (MARKDOWN_EXTENSIONS.includes(extension)) {
       return 'markdown'
-    } else if (IMAGE_EXTENSIONS.includes(extension)) {
+    }
+    else if (IMAGE_EXTENSIONS.includes(extension)) {
       return 'image'
     }
     return 'unknown'
@@ -45,13 +46,13 @@ export function useFileUpload() {
   }
 
   const addFiles = (fileList) => {
-    const newFiles = Array.from(fileList).map(file => {
+    const newFiles = Array.from(fileList).map((file) => {
       const fileType = getFileType(file)
       return {
         file,
         id: generateFileId(),
         type: fileType,
-        preview: fileType === 'image' ? URL.createObjectURL(file) : null
+        preview: fileType === 'image' ? URL.createObjectURL(file) : null,
       }
     }).filter(f => f.type !== 'unknown') // Filter out unsupported files
 
@@ -79,7 +80,7 @@ export function useFileUpload() {
 
   const clearFiles = () => {
     // Clean up preview URLs
-    files.value.forEach(file => {
+    files.value.forEach((file) => {
       if (file.preview) {
         URL.revokeObjectURL(file.preview)
       }
@@ -89,10 +90,11 @@ export function useFileUpload() {
 
   const validateFiles = () => {
     const errors = []
-    
+
     if (markdownFiles.value.length === 0) {
       errors.push('At least one markdown file is required')
-    } else if (markdownFiles.value.length > 1) {
+    }
+    else if (markdownFiles.value.length > 1) {
       errors.push('Only one markdown file is allowed')
     }
 
@@ -104,7 +106,7 @@ export function useFileUpload() {
       isValid: errors.length === 0 && isValidFileCount.value,
       hasMarkdown: markdownFiles.value.length === 1,
       markdownCount: markdownFiles.value.length,
-      errors
+      errors,
     }
   }
 
@@ -113,11 +115,12 @@ export function useFileUpload() {
   }
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes'
+    if (bytes === 0)
+      return '0 Bytes'
     const k = 1024
     const sizes = ['Bytes', 'KB', 'MB', 'GB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+    return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`
   }
 
   return {
@@ -134,6 +137,6 @@ export function useFileUpload() {
     validateFiles,
     getFileExtension,
     formatFileSize,
-    setDragOver: (value) => { isDragOver.value = value }
+    setDragOver: (value) => { isDragOver.value = value },
   }
 }

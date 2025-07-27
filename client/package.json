@@ -1,8 +1,8 @@
 {
   "name": "markdown-pdf-frontend",
+  "type": "module",
   "version": "1.0.0",
   "description": "Frontend for Markdown to PDF Converter API",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,7 +15,8 @@
     "file-saver": "^2.0.5",
     "jszip": "^3.10.1",
     "ky": "^1.8.2",
-    "vue": "^3.4.0"
+    "vue": "^3.4.0",
+    "vue-router": "^4.5.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^5.0.0",

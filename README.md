@@ -1,11 +1,13 @@
 # Markdown to PDF Converter API
 
-> **⚠️ Experimental Project Disclaimer**  
+> **⚠️ Experimental Project Disclaimer**
 > This project was developed primarily using "vibe coding" techniques with Claude Code - an experimental approach to rapid prototyping and development through AI-assisted coding conversations. This serves as a proof of concept for this development methodology and should be considered experimental software.
 
 A FastAPI-based web API that converts markdown documents with embedded images to professionally branded PDF files. The API accepts ZIP archives containing markdown files and associated images, processes them with company branding templates, and returns high-quality PDF documents with proper page break handling.
 
 ## Features
+
+### Backend API
 
 - **RESTful API**: Built with FastAPI for high performance and automatic documentation
 - **ZIP File Processing**: Accepts ZIP archives containing markdown and image files
@@ -16,9 +18,27 @@ A FastAPI-based web API that converts markdown documents with embedded images to
 - **Input Validation**: Comprehensive file type and size validation
 - **Error Handling**: Detailed error responses with proper HTTP status codes
 - **Logging**: Structured logging with Loguru
-- **Docker Support**: Containerized deployment with Docker
+
+### Frontend UI
+
+- **Web Interface**: Clean Vue 3 single-page application
+- **Drag & Drop Upload**: Intuitive file upload with validation feedback
+- **Real-time Progress**: Step-by-step generation progress with loading states
+- **File Management**: Upload single markdown file with multiple image files
+- **ZIP Creation**: Client-side ZIP file creation from uploaded files
+- **Error Handling**: User-friendly error messages and validation
+- **API Status**: Live API health monitoring and status display
+- **Dark Theme**: Built with Nuxt UI for consistent dark styling
+
+### Deployment
+
+- **Docker Support**: Containerized deployment with Docker Compose
+- **Multi-service**: Separate containers for API and frontend
+- **Production Ready**: Nginx reverse proxy and optimized builds
 
 ## Technology Stack
+
+### Backend API
 
 - **Framework**: FastAPI 0.104+
 - **Package Manager**: Poetry
@@ -29,31 +49,44 @@ A FastAPI-based web API that converts markdown documents with embedded images to
 - **Logging**: Loguru
 - **Containerization**: Docker
 
+### Frontend UI
+
+- **Framework**: Vue 3
+- **Build Tool**: Vite
+- **UI Library**: Nuxt UI
+- **Utilities**: VueUse
+- **HTTP Client**: Ky
+- **File Handling**: JSZip, File-Saver
+- **Code Quality**: ESLint with Antfu config
+- **Web Server**: Nginx (production)
+
 ## Quick Start
 
-### Using Docker (Recommended)
+### Using Docker Compose (Recommended)
 
 1. Clone the repository:
 
 ```bash
 git clone <repository-url>
-cd markdown-pdf-api
+cd test-md-to-pdf
 ```
 
-2. Build and run the Docker container:
+2. Build and run both services:
 
 ```bash
-docker build -t markdown-pdf-api .
-docker run -p 8000:8000 markdown-pdf-api
+docker-compose up --build
 ```
 
-3. Access the API:
+3. Access the application:
 
-- API Documentation: <http://localhost:8000/docs>
-- Health Check: <http://localhost:8000/health>
-- API Info: <http://localhost:8000/api/v1/info>
+- **Frontend UI**: <http://localhost:3000>
+- **API Documentation**: <http://localhost:8000/docs>
+- **Health Check**: <http://localhost:8000/health>
+- **API Info**: <http://localhost:8000/api/v1/info>
 
 ### Local Development
+
+#### Backend API
 
 1. Install Poetry:
 
@@ -61,18 +94,40 @@ docker run -p 8000:8000 markdown-pdf-api
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 
-2. Set up the environment:
+2. Set up the backend:
 
 ```bash
-chmod +x scripts/setup.sh
-./scripts/setup.sh
+poetry install
+cp .env.example .env
 ```
 
-3. Start the development server:
+3. Start the API development server:
 
 ```bash
 poetry run uvicorn app.main:app --reload
 ```
+
+#### Frontend UI
+
+1. Navigate to the client directory:
+
+```bash
+cd client
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the frontend development server:
+
+```bash
+npm run dev
+```
+
+The frontend will be available at <http://localhost:3000> and will proxy API calls to the backend.
 
 ## API Endpoints
 

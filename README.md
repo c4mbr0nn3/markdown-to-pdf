@@ -1,5 +1,8 @@
 # Markdown to PDF Converter API
 
+> **⚠️ Experimental Project Disclaimer**  
+> This project was developed primarily using "vibe coding" techniques with Claude Code - an experimental approach to rapid prototyping and development through AI-assisted coding conversations. This serves as a proof of concept for this development methodology and should be considered experimental software.
+
 A FastAPI-based web API that converts markdown documents with embedded images to professionally branded PDF files. The API accepts ZIP archives containing markdown files and associated images, processes them with company branding templates, and returns high-quality PDF documents with proper page break handling.
 
 ## Features
